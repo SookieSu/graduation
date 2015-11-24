@@ -2,6 +2,9 @@
 /**
   * wechat php test
   */
+//include 'wx_tpl.php';
+$dir = dirname(__FILE__);
+require($dir.'/wx_tpl.php');
 
 //define your token
 define("TOKEN", "sookiesu");
@@ -57,23 +60,11 @@ class wechatCallbackapiTest
 
     public function handleText($postObj)
     {
-        $fromUsername = $postObj->FromUserName;
-        $toUsername = $postObj->ToUserName;
         $keyword = trim($postObj->Content);
-        $time = time();
-        $textTpl = "<xml>
-                    <ToUserName><![CDATA[%s]]></ToUserName>
-                    <FromUserName><![CDATA[%s]]></FromUserName>
-                    <CreateTime>%s</CreateTime>
-                    <MsgType><![CDATA[%s]]></MsgType>
-                    <Content><![CDATA[%s]]></Content>
-                    <FuncFlag>0</FuncFlag>
-                    </xml>";             
         if(!empty( $keyword ))
         {
-            $msgType = "text";
             $contentStr = "你刚刚说的是："."\n".$postObj->Content."\n"."不过不管你说什么我都不会理你的(￢︿̫̿￢☆)";
-            $resultStr = sprintf($textTpl, $fromUsername, $toUsername, $time, $msgType, $contentStr);
+            $resultStr = $this->responseText($postObj,$contentStr);
             echo $resultStr;
         }else{
             echo "Input something...";
@@ -104,31 +95,13 @@ class wechatCallbackapiTest
     
     public function responseText($object, $content, $flag=0)
     {
-        $textTpl = "<xml>
-                    <ToUserName><![CDATA[%s]]></ToUserName>
-                    <FromUserName><![CDATA[%s]]></FromUserName>
-                    <CreateTime>%s</CreateTime>
-                    <MsgType><![CDATA[text]]></MsgType>
-                    <Content><![CDATA[%s]]></Content>
-                    <FuncFlag>%d</FuncFlag>
-                    </xml>";
-        $resultStr = sprintf($textTpl, $object->FromUserName, $object->ToUserName, time(), $content, $flag);
+        $resultStr = sprintf($GLOBALS["textTpl"], $object->FromUserName, $object->ToUserName, time(), $content, $flag);
         return $resultStr;
     }
 
     public function responseVoice($object, $voiceId, $flag=0)
     {
-        $textTpl = "<xml>
-                    <ToUserName><![CDATA[%s]]></ToUserName>
-                    <FromUserName><![CDATA[%s]]></FromUserName>
-                    <CreateTime>%s</CreateTime>
-                    <MsgType><![CDATA[voice]]></MsgType>
-                    <Voice>
-                    <MediaId><![CDATA[%s]]></MediaId>
-                    </Voice>
-                    <FuncFlag>%d</FuncFlag>
-                    </xml>";
-        $resultStr = sprintf($textTpl, $object->FromUserName, $object->ToUserName, time(), $voiceId, $flag);
+        $resultStr = sprintf($GLOBALS["voiceTpl"], $object->FromUserName, $object->ToUserName, time(), $voiceId, $flag);
         return $resultStr;
     }
 
@@ -137,14 +110,12 @@ class wechatCallbackapiTest
     {
         $signature = $_GET["signature"];
         $timestamp = $_GET["timestamp"];
-        $nonce = $_GET["nonce"];    
-                
+        $nonce = $_GET["nonce"];         
         $token = TOKEN;
         $tmpArr = array($token, $timestamp, $nonce);
         sort($tmpArr);
         $tmpStr = implode( $tmpArr );
         $tmpStr = sha1( $tmpStr );
-        
         if( $tmpStr == $signature ){
             return true;
         }else{
