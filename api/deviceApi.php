@@ -1,19 +1,17 @@
 <?php
 /*
- * @funcName : getStatus
- * @funcDescription : 通过设备ID获取最新状态：
+ * @className : deviceApi
+ * @classDescription : 通过设备ID获取最新状态：
  * 1、语音通信模式：是否有新消息；
  * 2、儿歌获取模式：是否有增加/删除 儿歌/故事的状态；
- * @funcParam : deviceID
+ * 用于设备获取服务器更新api，处理设备get/post请求
 */
 $dir = dirname(__FILE__);
 require_once($dir.'/../consts/MsgType.php');
 require_once($dir.'/../DB/DBMocks.php');
 
 echo "hello world!";
-define("SUCCESS",true);
-define("FAILED",false);
-define("SUCCESSCODE",200);
+
 
 $deviceApiObj = new deviceApi();
 $deviceApiObj->start();
@@ -32,6 +30,7 @@ class deviceApi{
 	{
 		$deviceID = $_GET['deviceID'];
 		$method = $_GET['method'];
+    
 		if($deviceID != '' && $method == 'getStatus'){
   			$this->getStatus($deviceID);
   		}

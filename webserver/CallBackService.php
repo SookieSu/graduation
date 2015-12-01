@@ -1,6 +1,6 @@
 <?php
 /**
-  * wechat php test
+  * 用于被动接受微信消息
   */
 
 

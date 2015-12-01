@@ -1,4 +1,8 @@
 <?php
+define("SUCCESS",true);
+define("FAILED",false);
+define("SUCCESSCODE",200);
+
 class MsgType{
 
 
