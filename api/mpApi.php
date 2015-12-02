@@ -8,26 +8,42 @@
 */
 require_once($dir.'/../DB/DBMocks.php');
 
-$mpApiObj = new mpApi();
-$mpApiObj->addBound('20151130','2');
-$mpApiObj->addBound('20151201','1');
-$mpApiObj->addBound('20151202','2');
-$mpApiObj->removeBound('20151230','2');
+//$mpApiObj = new mpApi();
+//$mpApiObj->addBound('20151130','2');
+//$mpApiObj->addBound('20151201','1');
+//$mpApiObj->addBound('20151202','2');
+//$mpApiObj->removeBound('20151230','2');
+//echo mpApi::getAccessToken();
 
 class mpApi
 {
-	const GetAccessTokenUrl = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid="
-			+ WxConfig::APPID + "&secret=" + WxConfig::APPSECRET;
+	const GetAccessTokenUrl = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".WxConfig::APPID."&secret=".WxConfig::APPSECRET;
 	const CustomSendUrl = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=ACCESS_TOKEN";
 	const CreateMenuUrl = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=ACCESS_TOKEN";
 	const QueryMenuUrl = "https://api.weixin.qq.com/cgi-bin/menu/get?access_token=ACCESS_TOKEN";
 	const DeleteMenuUrl = "https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=ACCESS_TOKEN";
+	const GetMediaUrl = "https://api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id=MEDIA_ID";
+
+
+	/**
+		 * 获取访问凭证
+		 * <p>
+		 * 正常情况下access_token有效期为7200秒，重复获取将导致上次获取的access_token失效。
+		 * 由于获取access_token的api调用次数非常有限，需要全局存储与更新access_token
+	*/
+	public static function getAccessToken()
+	{
+		$resultAccessToken = HttpUtil::executeGet(self::GetAccessTokenUrl);
+		$jsonAccessToken = json_decode($resultAccessToken,true);
+		echo 'AccessToken:'.var_dump($jsonAccessToken);
+		return $jsonAccessToken['access_token'];
+	}
 	/*
 	 * @funcName : addBound
  	 * @funcDescription : 微信用户通过扫码绑定deviceID
 	 * @funcParam : userID , deviceID
 	*/
-	public function addBound($userID,$deviceID)
+	public static function addBound($userID,$deviceID)
 	{
 		//要先判定是不是在db中已经存在该记录，不存在则绑定，存在则提示已存在
 		$retarr = DBMocks::queryBoundInfo($deviceID);
@@ -53,7 +69,7 @@ class mpApi
 		}
 	}
 
-	public function removeBound($userID,$deviceID)
+	public static function removeBound($userID,$deviceID)
 	{
 		//先判断db中是否有该记录，有则删除，没有则返回记录不存在
 		$retarr = DBMocks::queryBoundInfo($deviceID);
@@ -78,6 +94,17 @@ class mpApi
 			 echo "this device and wechat has never bound before : ".$userID." : ".$deviceID." ! \n";
 			 return false;
 		}
+	}
+
+	public static function getVoice($mediaID)
+	{
+		$access_token = self::getAccessToken();
+		$tmpurl = str_replace("ACCESS_TOKEN",$access_token, self::GetMediaUrl);
+		$realurl = str_replace("MEDIA_ID",$mediaID, $tmpurl);
+		echo $realurl;
+		$retData = HttpUtil::executeGet($realurl);
+		echo $retData;
+		return $retData;
 	}
 }
 

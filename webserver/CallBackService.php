@@ -5,18 +5,21 @@
 
 
 //define your token
+require_once($dir.'/../api/mpApi.php');
+
 define("TOKEN", "sookiesu");
 $wechatObj = new wechatCallbackapiTest();
 $wechatObj->responseMsg();
-//$wechatObj->valid();//用于配置接口
+//wechatObj->valid();//用于配置接口
 
 class wechatCallbackapiTest
 {
     public function valid()
     {
         $echoStr = $_GET["echostr"];
-
+        //echo $echoStr;
         //valid signature , option
+        
         if($this->checkSignature()){
             echo $echoStr;
             exit;
@@ -33,7 +36,7 @@ class wechatCallbackapiTest
                 
                 $postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
                 $RX_TYPE = trim($postObj->MsgType);
-
+                //echo json_encode($postObj);
                 switch($RX_TYPE)
                 {
                     case "text":
@@ -62,7 +65,9 @@ class wechatCallbackapiTest
         if(!empty( $keyword ))
         {
             $contentStr = "你刚刚说的是："."\n".$postObj->Content."\n"."不过不管你说什么我都不会理你的(￢︿̫̿￢☆)";
-            $resultStr = $this->responseText($postObj,$contentStr);
+            //for test
+            $retAccessToken = mpApi::getAccessToken();
+            $resultStr = $this->responseText($postObj,$contentStr." ".$retAccessToken);
             echo $resultStr;
         }else{
             echo "Input something...";
@@ -87,7 +92,10 @@ class wechatCallbackapiTest
     public function handleVoice($object)
     {
         $VoiceId = $object->MediaId;
-        $resultStr = $this->responseVoice($object, $VoiceId);
+        //$resultStr = $this->responseVoice($object, $VoiceId);
+        $retVoiceData = mpApi::GetVoice($VoiceId);
+        $contentStr = $object->ToUserName.":".$object->FromUserName.":".$object->CreateTime.":".$VoiceId.":".$object->MsgId;
+        $resultStr = $this->responseText($object,$contentStr);
         return $resultStr;
     }
     

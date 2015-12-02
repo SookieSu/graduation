@@ -10,7 +10,7 @@ $dir = dirname(__FILE__);
 require_once($dir.'/../consts/MsgType.php');
 require_once($dir.'/../DB/DBMocks.php');
 
-echo "hello world!";
+//echo "hello world!";
 
 
 $deviceApiObj = new deviceApi();
