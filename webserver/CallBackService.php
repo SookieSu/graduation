@@ -10,6 +10,8 @@ require_once($dir.'/../api/mpApi.php');
 
 define("TOKEN", "sookiesu");
 $wechatObj = new wechatCallbackapiTest();
+$retMenu = mpApi::menuCreate();
+echo var_dump($retMenu);
 $wechatObj->responseMsg();
 //wechatObj->valid();//用于配置接口
 
@@ -31,8 +33,6 @@ class wechatCallbackapiTest
     {
         //get post data, May be due to the different environments
         $postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
-        $retMenu = mpApi::menuCreate();
-        echo var_dump($retMenu);
         //extract post data
         if (!empty($postStr)){
                 
@@ -96,11 +96,6 @@ class wechatCallbackapiTest
         $VoiceId = $object->MediaId;
         //$resultStr = $this->responseVoice($object, $VoiceId);
         $retVoiceData = mpApi::getVoice($VoiceId);
-        /*
-        //test httpGet
-        $retData = HttpUtil::executeGet('http://www.baidu.com/');
-        echo $retData;
-        */
         $contentStr = $object->ToUserName.":".$object->FromUserName.":".$object->CreateTime.":".$VoiceId.":".$object->MsgId;
         $resultStr = $this->responseText($object,$contentStr);
         return $resultStr;

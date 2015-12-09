@@ -122,7 +122,10 @@ class DBMocks{
 	{
 
 	}
-
+	public static function addVoice($deviceID,$voice)
+	{
+		
+	}
 	public static function saveBoundInfo($userID,$deviceID)
 	{
 		$sql = "INSERT  INTO ".BOUNDDATA." ( `userid` , `deviceid` ) "." VALUES "." ( '$userID' , '$deviceID') ";

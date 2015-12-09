@@ -1,36 +1,69 @@
 <?php
 
+$dir = dirname(__FILE__);
+require_once($dir.'/../tools/AccessToken.php');
+require_once($dir.'/../api/mpApi.php');
+
+$accessToken_instance = AccessTokenUtil::getInstance();
+
 class AccessTokenUtil{
+	/**
+	 * 凭证的存储需要全局唯一
+	 * <p>
+	 * 单机部署情况下可以存在内存中 <br>
+	 * 分布式情况需要存在集中缓存或DB中
+	 */
+	private static $token;
+	//定义单例
+	private static $_instance;
+
+	public static function getInstance()
+	{
+		if(!(self::$_instance instanceof self))
+		{
+			self::$_instance = new self;
+		}
+		return self::$_instance;
+	}
+
+	private function __construct()
+	{
+		self::init();
+	}
+
 	/**
 	 * 获取凭证
 	 */
 	public static function getTokenStr() {
-		return queryAccessToken().getAccess_token();
+		//echo var_dump(self::queryAccessToken());
+		return self::queryAccessToken()->getAccess_token();
 	}
 
-	/*
-	  刷新并返回新凭证
-	public static synchronized String refreshAndGetToken() {
-		AccessToken tk = queryAccessToken();
+	
+	//刷新并返回新凭证
+	public static function refreshAndGetToken() {
+		$tk = self::queryAccessToken();
 		// 10秒之内只刷新一次，防止并发引起的多次刷新
-		if (tk == null
-				|| (System.currentTimeMillis() - tk.getCreateTime() > 10000)) {
-			refreshToken();
+		//echo "tk : ".var_dump($tk)."\n";
+		//echo "\n".time() - $tk->getCreateTime()."\n";
+		if ($tk == null || (time() - $tk->getCreateTime() > 10000)) {
+			self::refreshToken();
 		}
-		return getTokenStr();
+		return self::getTokenStr();
 	}
-	*/
+	
 	// 刷新凭证并更新全局凭证值
 	private static function refreshToken() {
 		echo "refresh token...";
 		$accessToken = MpApi::getAccessToken();
-		saveAccessToken($accessToken);
-		
+		echo var_dump($accessToken);
+		self::saveAccessToken($accessToken);
 	}
 
 	private static function init() {
-		if (queryAccessToken() == null) {
-			refreshToken();
+		if (self::queryAccessToken() == null) {
+			self::$token = new AccessToken();
+			self::refreshToken();
 		}
 		//initTimer(queryAccessToken());
 	}
@@ -62,14 +95,7 @@ class AccessTokenUtil{
 		}));
 	}
 */
-	/**
-	 * 凭证的存储需要全局唯一
-	 * <p>
-	 * 单机部署情况下可以存在内存中 <br>
-	 * 分布式情况需要存在集中缓存或DB中
-	 */
-	private static $token;
-
+	
 	/**
 	 * 获取存储的token
 	 */
@@ -81,7 +107,14 @@ class AccessTokenUtil{
 	 * 保存token
 	 */
 	private static function saveAccessToken($accessToken) {
-		self::$token = $accessToken;
+		/*
+		$rs = json_decode($accessToken,true);
+		*/
+		echo "access_token: \n".$accessToken['access_token'];
+		echo "expires_in : \n".$accessToken['expires_in'];
+		self::$token->setAccess_token($accessToken['access_token']);
+		self::$token->setExpires_in($accessToken['expires_in']);
+		self::$token->setCreateTime(time());
 	}
 }
 ?>

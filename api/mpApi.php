@@ -39,8 +39,8 @@ class mpApi
 	{
 		$resultAccessToken = HttpUtil::executeGet(self::GetAccessTokenUrl);
 		$jsonAccessToken = json_decode($resultAccessToken,true);
-		echo var_dump($jsonAccessToken);
-		return $jsonAccessToken['access_token'];
+		return $jsonAccessToken;
+		//此处返回获取access_token接口后的json对象
 	}
 	/*
 	 * @funcName : addBound
@@ -102,12 +102,12 @@ class mpApi
 
 	public static function getVoice($mediaID)
 	{
-		$access_token = self::getAccessToken();
-		$tmpurl = str_replace("ACCESS_TOKEN",$access_token, self::GetMediaUrl);
-		$realurl = str_replace("MEDIA_ID",$mediaID, $tmpurl);
+		//$access_token = self::getAccessToken();
+		//$tmpurl = str_replace("ACCESS_TOKEN",$access_token, self::GetMediaUrl);
+		$realurl = str_replace("MEDIA_ID",$mediaID,self::GetMediaUrl);
 		echo $realurl;
-		$retData = HttpUtil::executeGet($realurl);
-		echo $retData;
+		$retData = HttpUtil::doGet($realurl);
+		echo var_dump($retData);
 		return $retData;
 	}
 
@@ -155,7 +155,7 @@ class mpApi
 		 }]}
 		 ]}]
 		 }';
-		return HttpUtil::executePost(self::CreateMenuUrl, $menuPostString);
+		return HttpUtil::doPost(self::CreateMenuUrl, $menuPostString);
 	}
 
 	/**

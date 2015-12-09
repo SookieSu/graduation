@@ -4,12 +4,27 @@
  * @classDescription : 
  * 用于向微信发送http get/post请求
 */
+$dir = dirname(__FILE__);
+require_once($dir.'/../tools/AccessTokenUtil.php');
 
 class HttpUtil
 {
 	public static function doGet($url)
 	{
-
+		$realUrl = str_replace("ACCESS_TOKEN",AccessTokenUtil::getTokenStr(),$url);
+		echo "\nrealUrl in doGet : \n".$realUrl;
+		$rs = self::executeGet($realUrl);
+		$json = json_decode($rs,true);
+		if ($json != null && array_key_exists("errcode",$json) 
+				&& ($json["errcode"] == 40001
+						|| $json["errcode"] == 40014
+						|| $json["errcode"] == 41001 
+						|| $json["errcode"] == 42001)) {
+			$realUrl = str_replace("ACCESS_TOKEN",
+					AccessTokenUtil::refreshAndGetToken(),$url);
+			$rs = self::executeGet($realUrl);
+		}
+		return $rs;
 	}
 	public static function executeGet($url,$timeout=30)
 	{
@@ -56,7 +71,22 @@ class HttpUtil
 
 	public static function doPost($url,$body)
 	{
-
+		$realUrl = str_replace("ACCESS_TOKEN",AccessTokenUtil::getTokenStr(),$url);
+		echo "realurl: ".$realUrl."\n";
+		$rs = self::executePost($realUrl, $body);
+		echo "rs : ".$rs."\n";
+		$json = json_decode($rs,true);
+		// 访问凭证失效时，重新进行一次s获取凭证并发起原来业务调用
+		if ($json != null && array_key_exists("errcode",$json) 
+				&& ($json["errcode"] == 40001
+						|| $json["errcode"] == 40014
+						|| $json["errcode"] == 41001 
+						|| $json["errcode"] == 42001)) {
+			$realUrl = str_replace("ACCESS_TOKEN",
+					AccessTokenUtil::refreshAndGetToken(),$url);
+			$rs = self::executePost($realUrl, $body);
+		}
+		return $rs;
 	}
 
 	public static function executePost($url,$body)
