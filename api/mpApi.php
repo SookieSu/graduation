@@ -6,7 +6,10 @@
  * 2、通过菜单 -- 增加/删除故事/儿歌
  * 用于处理微信公众号菜单服务以及绑定设备服务
 */
+$dir = dirname(__FILE__);
+require_once($dir.'/../consts/WxConfig.php');
 require_once($dir.'/../DB/DBMocks.php');
+require_once($dir.'/../tools/HttpUtil.php');
 
 //$mpApiObj = new mpApi();
 //$mpApiObj->addBound('20151130','2');
@@ -23,6 +26,7 @@ class mpApi
 	const QueryMenuUrl = "https://api.weixin.qq.com/cgi-bin/menu/get?access_token=ACCESS_TOKEN";
 	const DeleteMenuUrl = "https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=ACCESS_TOKEN";
 	const GetMediaUrl = "https://api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id=MEDIA_ID";
+	//const GetMediaUrl = "https://file.api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id=MEDIA_ID";
 
 
 	/**
@@ -35,7 +39,7 @@ class mpApi
 	{
 		$resultAccessToken = HttpUtil::executeGet(self::GetAccessTokenUrl);
 		$jsonAccessToken = json_decode($resultAccessToken,true);
-		echo 'AccessToken:'.var_dump($jsonAccessToken);
+		echo var_dump($jsonAccessToken);
 		return $jsonAccessToken['access_token'];
 	}
 	/*
@@ -105,6 +109,69 @@ class mpApi
 		$retData = HttpUtil::executeGet($realurl);
 		echo $retData;
 		return $retData;
+	}
+
+	/**
+	 * 创建自定义菜单<p>
+	 * 文档位置：自定义菜单->自定义菜单创建接口
+	 */
+	public static function menuCreate() {
+		$menuPostString = '{
+		 "button":[
+		 {"name":"儿歌",
+		 "sub_button":[
+		 {
+		 "type":"click",
+		 "name":"添加儿歌",
+		 "key":"1100"
+		 },
+		 {
+		 "type":"click",
+		 "name":"查询儿歌",
+		 "key":"2200"
+		 },
+		 {
+		 "type":"click",
+		 "name":"删除儿歌",
+		 "key":"2200"
+		 }]},
+		 {
+		 "name":"故事",
+		 "sub_button":[
+		 {
+		 "type":"click",
+		 "name":"添加故事",
+		 "key":"1101"
+		 },
+		 {
+		 "type":"click",
+		 "name":"查询故事",
+		 "key":"2001"
+		 },
+		 {
+		 "type":"click",
+		 "name":"删除故事",
+		 "key":"2001"
+		 }]}
+		 ]}]
+		 }';
+		return HttpUtil::executePost(self::CreateMenuUrl, $menuPostString);
+	}
+
+	/**
+	 * 查询自定义菜单<p>
+	 * 文档位置：自定义菜单->自定义菜单查询接口
+	 */
+	public static function menuQuery() {
+		return HttpUtil::doGet(self::QueryMenuUrl);
+	}
+	
+	/**
+	 * 删除自定义菜单<p>
+	 * 文档位置：自定义菜单->自定义菜单删除接口
+	 */
+	public static function menuDelete() {
+		return HttpUtil::doGet(self::DeleteMenuUrl);
 	}
 }
 

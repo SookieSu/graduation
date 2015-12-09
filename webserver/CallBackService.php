@@ -5,6 +5,7 @@
 
 
 //define your token
+$dir = dirname(__FILE__);
 require_once($dir.'/../api/mpApi.php');
 
 define("TOKEN", "sookiesu");
@@ -30,7 +31,8 @@ class wechatCallbackapiTest
     {
         //get post data, May be due to the different environments
         $postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
-
+        $retMenu = mpApi::menuCreate();
+        echo var_dump($retMenu);
         //extract post data
         if (!empty($postStr)){
                 
@@ -80,7 +82,7 @@ class wechatCallbackapiTest
         switch ($object->Event)
         {
             case "subscribe":
-                $contentStr = "感谢您关注SookieSu"."\n"."你关注了也没有什么卵用0-0，因为这是我做毕设用的0-0";
+                $contentStr = "感谢您关注SookieSu"."\n";
                 break;
             default :
                 $contentStr = "Unknow Event: ".$object->Event;
@@ -93,7 +95,12 @@ class wechatCallbackapiTest
     {
         $VoiceId = $object->MediaId;
         //$resultStr = $this->responseVoice($object, $VoiceId);
-        $retVoiceData = mpApi::GetVoice($VoiceId);
+        $retVoiceData = mpApi::getVoice($VoiceId);
+        /*
+        //test httpGet
+        $retData = HttpUtil::executeGet('http://www.baidu.com/');
+        echo $retData;
+        */
         $contentStr = $object->ToUserName.":".$object->FromUserName.":".$object->CreateTime.":".$VoiceId.":".$object->MsgId;
         $resultStr = $this->responseText($object,$contentStr);
         return $resultStr;
