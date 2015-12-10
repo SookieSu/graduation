@@ -124,9 +124,12 @@ class mpApi
 		$realurl = str_replace("MEDIA_ID",$mediaID,self::GetMediaUrl);
 		//echo $realurl;
 		$retData = HttpUtil::doGet($realurl);
-		//echo var_dump($retData);
+		echo var_dump($retData);
 		//test addVoice
-		DBMocks::addVoiceInfo('20151130',$retData);
+		if($retData != false)
+		{
+			DBMocks::addVoiceInfo('20151130',$retData);
+		}
 		return $retData;
 	}
 

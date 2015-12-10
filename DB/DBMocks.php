@@ -73,7 +73,7 @@ class DBMocks{
 		$data = self::$mysql->getData( $sql );
 		if( self::$mysql->errno() != 0 )
 		{
-    		die( "Error:" . self::$mysql->errmsg() );
+    		die( "Error in queryBoundInfo :" . self::$mysql->errmsg() );
 		}
 		else if($data == null)
 		{
@@ -95,7 +95,7 @@ class DBMocks{
 		self::$mysql->runSql( $sql );
 		if( self::$mysql->errno() != 0 )
 		{
-    		die( "Error:" . self::$mysql->errmsg() );
+    		die( "Error in queryStatus :" . self::$mysql->errmsg() );
 		}
 		else{
 			//echo json_encode($data);
@@ -126,11 +126,11 @@ class DBMocks{
 
 	public static function queryDeviceData($deviceID)
 	{
-		$sql = "SELECT * FROM ".DEVICEDATA. " WHERE isread = 'false' AND deviceid = "."'$deviceID'";
+		$sql = "SELECT * FROM ".DEVICEDATA. " WHERE isread = 'false' AND deviceid = "."'$deviceID'";//
 		$data = self::$mysql->getData( $sql );
 		if( self::$mysql->errno() != 0 && $data == null )
 		{
-    		die( "Error:" . self::$mysql->errmsg() );
+    		die( "Error in queryDeviceData :" . self::$mysql->errmsg() );
 		}
 		else {
 			//echo json_encode($data);
@@ -145,11 +145,15 @@ class DBMocks{
 		{
 			# code...
 			$deviceID = $record['deviceID'];
-			$sql = "INSERT INTO ".DEVICEDATA."( `userid` ,`deviceid` , `msgtype` , `isread` , `data` ) "." VALUES ". " ( '$userID' , '$deviceID' , 'amr' , 'false' , '$voice' ) ";
+			$msgtype = MsgType::MSG_UNREAD;
+			$isread = 'false';
+			echo $deviceID.$msgtype.$isread;
+			$sql = "INSERT INTO ".DEVICEDATA."( `userid` ,`deviceid` , `msgtype` , `isread` , `data` ) "." VALUES "." ( '$userID' , '$deviceID' , '$msgtype' , '$isread' , '$voice' ) ";
+			echo "sql : ". $sql;
 			self::$mysql->runSql( $sql );
 			if( self::$mysql->errno() != 0 )
 			{
-			    die( "Error:" . self::$mysql->errmsg() );
+			    die( "Error in addVoiceInfo :" . self::$mysql->errmsg() );
 			    return false;
 			}
 			else
@@ -166,7 +170,7 @@ class DBMocks{
 		self::$mysql->runSql( $sql );
 		if( self::$mysql->errno() != 0 )
 		{
-    		die( "Error:" . self::$mysql->errmsg() );
+    		die( "Error in saveBoundInfo :" . self::$mysql->errmsg() );
 		}
 		else
 		{
@@ -182,7 +186,7 @@ class DBMocks{
 		self::$mysql->runSql( $sql );
 		if( self::$mysql->errno() != 0 )
 		{
-    		die( "Error:" . self::$mysql->errmsg() );
+    		die( "Error in removeBoundInfo :" . self::$mysql->errmsg() );
 		}
 		else
 		{
@@ -198,7 +202,7 @@ class DBMocks{
 		self::$mysql->runSql( $sql );
 		if( self::$mysql->errno() != 0 )
 		{
-    		die( "Error:" . self::$mysql->errmsg() );
+    		die( "Error in updateAccessToken :" . self::$mysql->errmsg() );
 		}
 		else
 		{
@@ -213,11 +217,11 @@ class DBMocks{
 		
 		if( self::$mysql->errno() != 0 && $data == null )
 		{
-    		die( "Error:" . self::$mysql->errmsg() );
+    		die( "Error in queryAccessToken :" . self::$mysql->errmsg() );
 		}
 		else if (array_key_exists('access_token',$data)){
 			//echo json_encode($data);
-			echo var_dump($data);
+			//echo var_dump($data);
 			return $data['access_token'];
 		}
 	}

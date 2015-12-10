@@ -57,7 +57,7 @@ class AccessTokenUtil{
 	private static function refreshToken() {
 		echo "refresh token...";
 		$accessToken = MpApi::getAccessToken();
-		echo var_dump($accessToken);
+		//echo var_dump($accessToken);
 		self::saveAccessToken($accessToken);
 	}
 
