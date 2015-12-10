@@ -13,9 +13,10 @@ $dir = dirname(__FILE__);
 require_once($dir.'/../consts/MsgType.php');
 
 //数据表名称定义
-define("DEVICEDATA","DeviceData");
-define("WEIXINDATA","WeixinData");
-define("BOUNDDATA","BoundData");
+define("ACCESSTOKEN","AccessToken");//存放AccessToken
+define("DEVICEDATA","DeviceData");//供给设备拉数据的数据库，存放微信->设备的指令。
+define("WEIXINDATA","WeixinData");//存放设备->微信的语音
+define("BOUNDDATA","BoundData");//存放微信与设备绑定的信息
 
 $mysql_instance = DBMocks::getInstance();
 
@@ -122,9 +123,42 @@ class DBMocks{
 	{
 
 	}
-	public static function addVoice($deviceID,$voice)
+
+	public static function queryDeviceData($deviceID)
 	{
-		
+		$sql = "SELECT * FROM ".DEVICEDATA. " WHERE isread = 'false' AND deviceid = "."'$deviceID'";
+		$data = self::$mysql->getData( $sql );
+		if( self::$mysql->errno() != 0 && $data == null )
+		{
+    		die( "Error:" . self::$mysql->errmsg() );
+		}
+		else {
+			//echo json_encode($data);
+			echo var_dump($data);
+			return $data;
+		}
+	}
+	public static function addVoiceInfo($userID,$voice)
+	{
+		$retbound = self::queryBoundInfo($userID);
+		foreach ($retbound as $record) 
+		{
+			# code...
+			$deviceID = $record['deviceID'];
+			$sql = "INSERT INTO ".DEVICEDATA."( `userid` ,`deviceid` , `msgtype` , `isread` , `data` ) "." VALUES ". " ( '$userID' , '$deviceID' , 'amr' , 'false' , '$voice' ) ";
+			self::$mysql->runSql( $sql );
+			if( self::$mysql->errno() != 0 )
+			{
+			    die( "Error:" . self::$mysql->errmsg() );
+			    return false;
+			}
+			else
+			{
+				echo "success add voice  : " . $userID . " : " . $deviceID . " ! \n";
+				return true;
+			}
+
+		}
 	}
 	public static function saveBoundInfo($userID,$deviceID)
 	{
@@ -154,6 +188,37 @@ class DBMocks{
 		{
 			echo "success delete bound info  : " . $userID . " : " . $deviceID . " ! \n";
 			return true;
+		}
+	}
+
+	public static function updateAccessToken($access_token)
+	{
+		$sql = "UPDATE ".ACCESSTOKEN." SET access_token = "."'$access_token'"." WHERE id = '1' ";
+		//echo $sql;
+		self::$mysql->runSql( $sql );
+		if( self::$mysql->errno() != 0 )
+		{
+    		die( "Error:" . self::$mysql->errmsg() );
+		}
+		else
+		{
+			echo "success update access_token  : " . $access_token ." ! \n";
+			return true;
+		}
+	}
+	public static function queryAccessToken()
+	{
+		$sql = "SELECT * FROM ".ACCESSTOKEN. " WHERE id = '1' ";
+		$data = self::$mysql->getLine( $sql );
+		
+		if( self::$mysql->errno() != 0 && $data == null )
+		{
+    		die( "Error:" . self::$mysql->errmsg() );
+		}
+		else if (array_key_exists('access_token',$data)){
+			//echo json_encode($data);
+			echo var_dump($data);
+			return $data['access_token'];
 		}
 	}
 }

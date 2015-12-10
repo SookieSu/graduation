@@ -11,7 +11,10 @@ require_once($dir.'/../consts/WxConfig.php');
 require_once($dir.'/../DB/DBMocks.php');
 require_once($dir.'/../tools/HttpUtil.php');
 
-//$mpApiObj = new mpApi();
+
+
+$mpApiObj = new mpApi();
+$mpApiObj->start();
 //$mpApiObj->addBound('20151130','2');
 //$mpApiObj->addBound('20151201','1');
 //$mpApiObj->addBound('20151202','2');
@@ -28,6 +31,15 @@ class mpApi
 	const GetMediaUrl = "https://api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id=MEDIA_ID";
 	//const GetMediaUrl = "https://file.api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id=MEDIA_ID";
 
+	public function start()
+	{
+		$userID = $_GET['userID'];
+		$method = $_GET['method'];
+    
+		if($userID != '' && $method == 'queryBound'){
+  			$this->queryBound($userID);
+  		}
+	}
 
 	/**
 		 * 获取访问凭证
@@ -41,6 +53,13 @@ class mpApi
 		$jsonAccessToken = json_decode($resultAccessToken,true);
 		return $jsonAccessToken;
 		//此处返回获取access_token接口后的json对象
+	}
+
+	public static function queryBound($id)
+	{
+		$retarr = DBMocks::queryBoundInfo($id);
+		echo var_dump($retarr);
+		return $retarr;
 	}
 	/*
 	 * @funcName : addBound
@@ -100,14 +119,14 @@ class mpApi
 		}
 	}
 
-	public static function getVoice($mediaID)
+	public static function addVoice($userID,$mediaID)
 	{
-		//$access_token = self::getAccessToken();
-		//$tmpurl = str_replace("ACCESS_TOKEN",$access_token, self::GetMediaUrl);
 		$realurl = str_replace("MEDIA_ID",$mediaID,self::GetMediaUrl);
-		echo $realurl;
+		//echo $realurl;
 		$retData = HttpUtil::doGet($realurl);
-		echo var_dump($retData);
+		//echo var_dump($retData);
+		//test addVoice
+		DBMocks::addVoiceInfo('20151130',$retData);
 		return $retData;
 	}
 
@@ -162,7 +181,8 @@ class mpApi
 	 * 查询自定义菜单<p>
 	 * 文档位置：自定义菜单->自定义菜单查询接口
 	 */
-	public static function menuQuery() {
+	public static function menuQuery() 
+	{
 		return HttpUtil::doGet(self::QueryMenuUrl);
 	}
 	
@@ -170,7 +190,8 @@ class mpApi
 	 * 删除自定义菜单<p>
 	 * 文档位置：自定义菜单->自定义菜单删除接口
 	 */
-	public static function menuDelete() {
+	public static function menuDelete() 
+	{
 		return HttpUtil::doGet(self::DeleteMenuUrl);
 	}
 }

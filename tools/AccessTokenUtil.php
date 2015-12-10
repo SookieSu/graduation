@@ -3,6 +3,7 @@
 $dir = dirname(__FILE__);
 require_once($dir.'/../tools/AccessToken.php');
 require_once($dir.'/../api/mpApi.php');
+require_once($dir.'/../DB/DBMocks.php');
 
 $accessToken_instance = AccessTokenUtil::getInstance();
 
@@ -26,7 +27,7 @@ class AccessTokenUtil{
 		return self::$_instance;
 	}
 
-	private function __construct()
+	public function __construct()
 	{
 		self::init();
 	}
@@ -61,8 +62,9 @@ class AccessTokenUtil{
 	}
 
 	private static function init() {
+		//echo "print in init .";
+		self::$token = new AccessToken();
 		if (self::queryAccessToken() == null) {
-			self::$token = new AccessToken();
 			self::refreshToken();
 		}
 		//initTimer(queryAccessToken());
@@ -100,6 +102,7 @@ class AccessTokenUtil{
 	 * 获取存储的token
 	 */
 	public static function queryAccessToken() {
+		self::$token->setAccess_token(DBMocks::queryAccessToken());
 		return self::$token;
 	}
 
@@ -110,11 +113,15 @@ class AccessTokenUtil{
 		/*
 		$rs = json_decode($accessToken,true);
 		*/
-		echo "access_token: \n".$accessToken['access_token'];
-		echo "expires_in : \n".$accessToken['expires_in'];
+		//echo "access_token: \n".$accessToken['access_token'];
+		//echo "expires_in : \n".$accessToken['expires_in'];
 		self::$token->setAccess_token($accessToken['access_token']);
 		self::$token->setExpires_in($accessToken['expires_in']);
 		self::$token->setCreateTime(time());
+		//存入数据库
+		DBMocks::updateAccessToken($accessToken['access_token']);
 	}
 }
 ?>
+
+

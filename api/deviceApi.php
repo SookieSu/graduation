@@ -31,9 +31,11 @@ class deviceApi{
 		$deviceID = $_GET['deviceID'];
 		$method = $_GET['method'];
     
-		if($deviceID != '' && $method == 'getStatus'){
-  			$this->getStatus($deviceID);
-  		}
+		if($deviceID != '' && $method == 'getStatus')
+    {
+  		//$this->getStatus($deviceID);
+      $this->getLatestVoice($deviceID);
+    }
 	}
 
 	/*
@@ -109,6 +111,7 @@ class deviceApi{
 	protected function getLatestVoice($deviceID)
 	{
 		echo "getLatestVoice!";
+    $retData = DBMocks::queryDeviceData($deviceID);
 		return 1;
 	}
 

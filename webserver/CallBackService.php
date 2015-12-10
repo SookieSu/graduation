@@ -11,7 +11,6 @@ require_once($dir.'/../api/mpApi.php');
 define("TOKEN", "sookiesu");
 $wechatObj = new wechatCallbackapiTest();
 $retMenu = mpApi::menuCreate();
-echo var_dump($retMenu);
 $wechatObj->responseMsg();
 //wechatObj->valid();//用于配置接口
 
@@ -68,8 +67,7 @@ class wechatCallbackapiTest
         {
             $contentStr = "你刚刚说的是："."\n".$postObj->Content."\n"."不过不管你说什么我都不会理你的(￢︿̫̿￢☆)";
             //for test
-            $retAccessToken = mpApi::getAccessToken();
-            $resultStr = $this->responseText($postObj,$contentStr." ".$retAccessToken);
+            $resultStr = $this->responseText($postObj,$contentStr);
             echo $resultStr;
         }else{
             echo "Input something...";
@@ -93,10 +91,9 @@ class wechatCallbackapiTest
     }
     public function handleVoice($object)
     {
-        $VoiceId = $object->MediaId;
         //$resultStr = $this->responseVoice($object, $VoiceId);
-        $retVoiceData = mpApi::getVoice($VoiceId);
-        $contentStr = $object->ToUserName.":".$object->FromUserName.":".$object->CreateTime.":".$VoiceId.":".$object->MsgId;
+        $retVoiceData = mpApi::addVoice($object->FromUserName,$object->MediaId);
+        $contentStr = $object->ToUserName.":".$object->FromUserName.":".$object->CreateTime.":".$object->MediaId.":".$object->MsgId;
         $resultStr = $this->responseText($object,$contentStr);
         return $resultStr;
     }

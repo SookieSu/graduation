@@ -6,13 +6,14 @@
 */
 $dir = dirname(__FILE__);
 require_once($dir.'/../tools/AccessTokenUtil.php');
-
+//test
+//HttpUtil::executeGet("https://api.weixin.qq.com/cgi-bin/media/get?access_token=vnu5sQAFWkZXgoDxZcTKg2MJqAUb61rLQpVj2bF9ZCh3z2l38vyXkVXDpNJ6F7_czN5YdrmtTYOKgP1keJzrl96lEjEIX994T4qSmf5Z_jQSBPhAFAZIW&media_id=lXH4OQLILzhr_I54SguvfRfR6q6lr9M3CMJJJ_k58-EZKRYTSutmJh7MwYwnn2B4");
 class HttpUtil
 {
 	public static function doGet($url)
 	{
 		$realUrl = str_replace("ACCESS_TOKEN",AccessTokenUtil::getTokenStr(),$url);
-		echo "\nrealUrl in doGet : \n".$realUrl;
+		//echo "\nrealUrl in doGet : \n".$realUrl;
 		$rs = self::executeGet($realUrl);
 		$json = json_decode($rs,true);
 		if ($json != null && array_key_exists("errcode",$json) 
@@ -60,10 +61,11 @@ class HttpUtil
             $data = curl_exec($ch);  
         }  
         */
-
+        /*
         if ($data == false) {  
             curl_close($ch);  
         }  
+        */
         //var_dump($data);
         /////
         return $data;  
@@ -72,9 +74,9 @@ class HttpUtil
 	public static function doPost($url,$body)
 	{
 		$realUrl = str_replace("ACCESS_TOKEN",AccessTokenUtil::getTokenStr(),$url);
-		echo "realurl: ".$realUrl."\n";
+		//echo "realurl: ".$realUrl."\n";
 		$rs = self::executePost($realUrl, $body);
-		echo "rs : ".$rs."\n";
+		//echo "rs : ".$rs."\n";
 		$json = json_decode($rs,true);
 		// 访问凭证失效时，重新进行一次s获取凭证并发起原来业务调用
 		if ($json != null && array_key_exists("errcode",$json) 
