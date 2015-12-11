@@ -8,10 +8,9 @@
 */
 $dir = dirname(__FILE__);
 require_once($dir.'/../consts/WxConfig.php');
+require_once($dir.'/../consts/MsgType.php');
 require_once($dir.'/../DB/DBMocks.php');
 require_once($dir.'/../tools/HttpUtil.php');
-
-
 
 $mpApiObj = new mpApi();
 $mpApiObj->start();
@@ -29,7 +28,6 @@ class mpApi
 	const QueryMenuUrl = "https://api.weixin.qq.com/cgi-bin/menu/get?access_token=ACCESS_TOKEN";
 	const DeleteMenuUrl = "https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=ACCESS_TOKEN";
 	const GetMediaUrl = "https://api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id=MEDIA_ID";
-	//const GetMediaUrl = "https://file.api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id=MEDIA_ID";
 
 	public function start()
 	{
@@ -124,13 +122,14 @@ class mpApi
 		$realurl = str_replace("MEDIA_ID",$mediaID,self::GetMediaUrl);
 		//echo $realurl;
 		$retData = HttpUtil::doGet($realurl);
-		echo var_dump($retData);
+		echo "print in addVoice ! \n";
+		//echo var_dump($retData);
 		//test addVoice
-		if($retData != false)
-		{
-			DBMocks::addVoiceInfo('20151130',$retData);
-		}
-		return $retData;
+		//if($retData != false)
+		//{
+		DBMocks::addMessageInfo(MsgType::DEVICEDATA,'20151130',MsgType::VOICE,$retData);
+		//}
+		//return $retData;
 	}
 
 	/**

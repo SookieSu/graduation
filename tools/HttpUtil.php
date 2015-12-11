@@ -13,7 +13,7 @@ class HttpUtil
 	public static function doGet($url)
 	{
 		$realUrl = str_replace("ACCESS_TOKEN",AccessTokenUtil::getTokenStr(),$url);
-		echo "\nrealUrl in doGet : \n".$realUrl;
+		//echo "\nrealUrl in doGet : \n".$realUrl;
 		$rs = self::executeGet($realUrl);
 		$json = json_decode($rs,true);
 		if ($json != null && array_key_exists("errcode",$json) 

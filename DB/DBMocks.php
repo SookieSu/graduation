@@ -12,11 +12,6 @@
 $dir = dirname(__FILE__);
 require_once($dir.'/../consts/MsgType.php');
 
-//数据表名称定义
-define("ACCESSTOKEN","AccessToken");//存放AccessToken
-define("DEVICEDATA","DeviceData");//供给设备拉数据的数据库，存放微信->设备的指令。
-define("WEIXINDATA","WeixinData");//存放设备->微信的语音
-define("BOUNDDATA","BoundData");//存放微信与设备绑定的信息
 
 $mysql_instance = DBMocks::getInstance();
 
@@ -69,7 +64,7 @@ class DBMocks{
 	public static function queryBoundInfo($id)
 	{
 		//suppose userID
-		$sql = "SELECT `userID`,`deviceID` FROM " . BOUNDDATA . " WHERE userID = '$id'" ;
+		$sql = "SELECT `userID`,`deviceID` FROM " . MsgType::BOUNDDATA . " WHERE userID = '$id'" ;
 		$data = self::$mysql->getData( $sql );
 		if( self::$mysql->errno() != 0 )
 		{
@@ -78,7 +73,7 @@ class DBMocks{
 		else if($data == null)
 		{
 			//suppose deviceID
-			$sql = "SELECT `userID`,`deviceID` FROM " . BOUNDDATA . " WHERE deviceID = '$id'" ;
+			$sql = "SELECT `userID`,`deviceID` FROM " . MsgType::BOUNDDATA . " WHERE deviceID = '$id'" ;
 			$data = self::$mysql->getData( $sql );
 		}
 		//此时拿到了含有id的多维数组data
@@ -90,7 +85,7 @@ class DBMocks{
 	public static function queryStatus($deviceID)
 	{
 
-		$sql = "SELECT * FROM ".DEVICEDATA. " LIMIT 10";
+		$sql = "SELECT * FROM ".MsgType::DEVICEDATA. " LIMIT 10";
 		$data = self::$mysql->getLine( $sql );
 		self::$mysql->runSql( $sql );
 		if( self::$mysql->errno() != 0 )
@@ -101,21 +96,6 @@ class DBMocks{
 			//echo json_encode($data);
 			$_status = array($data);
 		}
-
-		/*
-		$_status = array(
-			array(
-				'status' => MsgType::UPDATED,
-				'data' => null
-				),
-			array(
-				'status' => MsgType::MSG_UNREAD,
-				'data' => null
-				)
-			);
-
-		*/
-
 		return $_status;
 	}
 	
@@ -124,13 +104,24 @@ class DBMocks{
 
 	}
 
-	public static function queryDeviceData($deviceID)
+	/*
+	 * @funcName : queryMessageInfo
+ 	 * @funcDescription : 查询某表格，某用户id的未读/已读/所有信息，返回一个对象数组
+	 * @funcParam : $table,$deviceID,$isread
+	*/
+	public static function queryMessageInfo($table,$deviceID,$isread)
 	{
-		$sql = "SELECT * FROM ".DEVICEDATA. " WHERE isread = 'false' AND deviceid = "."'$deviceID'";//
+		if($isread != null)
+		{
+			$sql = "SELECT * FROM ".$table. " WHERE isread = '$isread' AND deviceid = '$deviceID' ";
+		}
+		else{
+			$sql = "SELECT * FROM ".$table. " WHERE deviceid = '$deviceID' ";
+		}
 		$data = self::$mysql->getData( $sql );
 		if( self::$mysql->errno() != 0 && $data == null )
 		{
-    		die( "Error in queryDeviceData :" . self::$mysql->errmsg() );
+    		die( "Error in queryMessageInfo :" . self::$mysql->errmsg() );
 		}
 		else {
 			//echo json_encode($data);
@@ -138,35 +129,88 @@ class DBMocks{
 			return $data;
 		}
 	}
-	public static function addVoiceInfo($userID,$voice)
+
+	/*
+	 * @funcName : addMessageInfo
+ 	 * @funcDescription : 增加某表格，某用户id的未读信息，返回bool类型,该id可以是用户id或设备id
+	 * @funcParam : $table,$id,$msgtype,$data
+	*/
+	public static function addMessageInfo($table,$id,$msgtype,$data)
 	{
-		$retbound = self::queryBoundInfo($userID);
+		$retbound = self::queryBoundInfo($id);
+		echo "print retbound ! ".var_dump($retbound);
 		foreach ($retbound as $record) 
 		{
 			# code...
+			$userID = $record['userID'];
 			$deviceID = $record['deviceID'];
-			$msgtype = MsgType::MSG_UNREAD;
-			$isread = 'false';
-			echo $deviceID.$msgtype.$isread;
-			$sql = "INSERT INTO ".DEVICEDATA."( `userid` ,`deviceid` , `msgtype` , `isread` , `data` ) "." VALUES "." ( '$userID' , '$deviceID' , '$msgtype' , '$isread' , '$voice' ) ";
-			echo "sql : ". $sql;
+			$isread = false;
+			if($data != null)
+			{
+				$tmpdata = self::$mysql->escape($data);
+			}
+			$sql = "INSERT INTO ".$table."( `userid` ,`deviceid` , `msgtype` , `isread` , `data` ) "." VALUES "." ( '$userID' , '$deviceID' , '$msgtype' , '$isread' , '$tmpdata' ) ";
+			//echo "sql : ". $sql;
 			self::$mysql->runSql( $sql );
 			if( self::$mysql->errno() != 0 )
 			{
-			    die( "Error in addVoiceInfo :" . self::$mysql->errmsg() );
+			    die( "Error in addMessageInfo :" . self::$mysql->errmsg() );
 			    return false;
 			}
 			else
 			{
-				echo "success add voice  : " . $userID . " : " . $deviceID . " ! \n";
+				echo "success addMessageInfo  : ".$table. ":" . $userID . ":" . $deviceID . " ! \n";
 				return true;
 			}
+		}
+	}
 
+	/*
+	 * @funcName : setMessageReadInfo
+ 	 * @funcDescription : 设置某表格的某record信息已读，返回bool类型
+	 * @funcParam : $table,$recordID
+	*/
+	public static function setMessageReadInfo($table,$recordID)
+	{
+		$sql = "UPDATE ".$table." SET isread = true "." WHERE id = '$recordID' ";
+		//echo $sql;
+		self::$mysql->runSql( $sql );
+		if( self::$mysql->errno() != 0 )
+		{
+    		die( "Error in setMessageReadInfo :" . self::$mysql->errmsg() );
+    		return false;
+		}
+		else
+		{
+			echo "success set MessageReadInfo  : ".$table. ":" .$recordID ." ! \n";
+			return true;
+		}
+	}
+
+	/*
+	 * @funcName : deleteMessageInfo
+ 	 * @funcDescription : 删除某表格的某record信息，返回bool类型
+	 * @funcParam : $table,$recordID
+	*/
+	public static function deleteMessageInfo($table,$recordID)
+	{
+		$sql = "DELETE FROM ".$table." WHERE id = '$recordID' " ;
+		//echo $sql;
+		self::$mysql->runSql( $sql );
+		if( self::$mysql->errno() != 0 )
+		{
+    		die( "Error in deleteMessageInfo :" . self::$mysql->errmsg() );
+    		return false;
+		}
+		else
+		{
+			echo "success delete MessageInfo  : ".$table. ":" .$recordID ." ! \n";
+			return true;
 		}
 	}
 	public static function saveBoundInfo($userID,$deviceID)
 	{
-		$sql = "INSERT  INTO ".BOUNDDATA." ( `userid` , `deviceid` ) "." VALUES "." ( '$userID' , '$deviceID') ";
+		$sql = "INSERT  INTO ".MsgType::BOUNDDATA." ( `userid` , `deviceid` ) "." VALUES "." ( '$userID' , '$deviceID') ";
 		self::$mysql->runSql( $sql );
 		if( self::$mysql->errno() != 0 )
 		{
@@ -182,7 +226,7 @@ class DBMocks{
 
 	public static function removeBoundInfo($userID,$deviceID)
 	{
-		$sql = "DELETE FROM ".BOUNDDATA." WHERE userID = '$userID' AND deviceID = '$deviceID'";
+		$sql = "DELETE FROM ".MsgType::BOUNDDATA." WHERE userID = '$userID' AND deviceID = '$deviceID'";
 		self::$mysql->runSql( $sql );
 		if( self::$mysql->errno() != 0 )
 		{
@@ -197,7 +241,7 @@ class DBMocks{
 
 	public static function updateAccessToken($access_token)
 	{
-		$sql = "UPDATE ".ACCESSTOKEN." SET access_token = "."'$access_token'"." WHERE id = '1' ";
+		$sql = "UPDATE ".MsgType::ACCESSTOKEN." SET access_token = "."'$access_token'"." WHERE id = '1' ";
 		//echo $sql;
 		self::$mysql->runSql( $sql );
 		if( self::$mysql->errno() != 0 )
@@ -212,7 +256,7 @@ class DBMocks{
 	}
 	public static function queryAccessToken()
 	{
-		$sql = "SELECT * FROM ".ACCESSTOKEN. " WHERE id = '1' ";
+		$sql = "SELECT * FROM ".MsgType::ACCESSTOKEN. " WHERE id = '1' ";
 		$data = self::$mysql->getLine( $sql );
 		
 		if( self::$mysql->errno() != 0 && $data == null )

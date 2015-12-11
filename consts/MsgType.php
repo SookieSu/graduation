@@ -14,11 +14,20 @@ class MsgType{
   const UPDATED = 2;
   const MSG_UNREAD = 3;
 
+  //获取的信息类型
+  const VOICE = 4;
+
   //设备获取特有
-  const SONG_ADD = 4;
-  const SONG_DELETE = 5;
-  const STORY_ADD = 6;
-  const STORY_DELETE = 7;
+  const SONG_ADD = 5;
+  const SONG_DELETE = 6;
+  const STORY_ADD = 7;
+  const STORY_DELETE = 8;
+
+  //数据表名称定义
+  const ACCESSTOKEN = "AccessToken";//存放AccessToken
+  const DEVICEDATA = "DeviceData";//供给设备拉数据的数据库，存放微信->设备的指令。
+  const WEIXINDATA = "WeixinData";//存放设备->微信的语音
+  const BOUNDDATA = "BoundData";//存放微信与设备绑定的信息
 
   //微信消息模板
   const textTpl = 

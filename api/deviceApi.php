@@ -12,7 +12,6 @@ require_once($dir.'/../DB/DBMocks.php');
 
 //echo "hello world!";
 
-
 $deviceApiObj = new deviceApi();
 $deviceApiObj->start();
 
@@ -35,6 +34,7 @@ class deviceApi{
     {
   		//$this->getStatus($deviceID);
       $this->getLatestVoice($deviceID);
+      //$this->deleteIsReadMessage($deviceID);
     }
 	}
 
@@ -60,6 +60,7 @@ class deviceApi{
   					# code...
   					echo "MSG_UNREAD!";
   					$_result[$index]['data'] = $this->getLatestVoice($deviceID);
+            $this->deleteIsReadMessage($deviceID);
   					break;
   				case MsgType::SONG_ADD:
   					# code...
@@ -111,10 +112,40 @@ class deviceApi{
 	protected function getLatestVoice($deviceID)
 	{
 		echo "getLatestVoice!";
-    $retData = DBMocks::queryDeviceData($deviceID);
+    $retData = DBMocks::queryMessageInfo(MsgType::DEVICEDATA,$deviceID,false);
+    if($retData != null)
+    {
+      echo 'not null retData !';
+      foreach($retData as $record) 
+      {
+        DBMocks::setMessageReadInfo(MsgType::DEVICEDATA,$record['id']);
+      }
+    }
+    else
+    {
+      return MsgType::UPDATED;
+    }
 		return 1;
 	}
 
+  protected function deleteIsReadMessage($deviceID)
+  {
+    echo "deleteIsReadMessage!";
+    $retData = DBMocks::queryMessageInfo(MsgType::DEVICEDATA,$deviceID,true);
+    if($retData != null)
+    {
+      echo var_dump($retData);
+      foreach($retData as $record) 
+      {
+        DBMocks::deleteMessageInfo(MsgType::DEVICEDATA,$record['id']);
+      }
+    }
+    else
+    {
+      return MsgType::UPDATED;
+    }
+    return 1;
+  }
 	protected function getSong($deviceID)
 	{
   		echo "getSong!";
