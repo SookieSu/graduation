@@ -32,13 +32,17 @@ class HttpUtil
 		if (!function_exists('curl_init')) {  
             throw new Exception('server not install curl');  
         }  
-        $ch = curl_init();  
+        $ch = curl_init(); 
+        if (stripos ( $url, "https://" ) !== FALSE) {
+            curl_setopt ( $ch, CURLOPT_SSL_VERIFYPEER, FALSE );
+            curl_setopt ( $ch, CURLOPT_SSL_VERIFYHOST, FALSE );
+        } 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);  
         curl_setopt($ch, CURLOPT_HEADER, false);  
         curl_setopt($ch, CURLOPT_URL, $url);  
         curl_setopt($ch, CURLOPT_TIMEOUT, $timeout); 
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);//这个是重点。
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // 从证书中检查SSL加密算法是否存在
+        //curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);//这个是重点。
+        //curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // 从证书中检查SSL加密算法是否存在
         $data = curl_exec($ch);   
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE); 
         if($http_code == '502')
@@ -75,9 +79,13 @@ class HttpUtil
 	{ 
 		// 模拟提交数据函数
     	$curl = curl_init(); // 启动一个CURL会话
+        if (stripos ( $url, "https://" ) !== FALSE) {
+            curl_setopt ( $curl, CURLOPT_SSL_VERIFYPEER, FALSE );
+            curl_setopt ( $curl, CURLOPT_SSL_VERIFYHOST, FALSE );
+        } 
     	curl_setopt($curl, CURLOPT_URL, $url); // 要访问的地址
-    	curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); // 对认证证书来源的检查
-    	curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false); // 从证书中检查SSL加密算法是否存在
+    	//curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); // 对认证证书来源的检查
+    	//curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false); // 从证书中检查SSL加密算法是否存在
     	//curl_setopt($curl, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']); // 模拟用户使用的浏览器
     	//curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1); // 使用自动跳转
     	//curl_setopt($curl, CURLOPT_AUTOREFERER, 1); // 自动设置Referer

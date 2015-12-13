@@ -1,7 +1,5 @@
 <?php
-define("SUCCESS",true);
-define("FAILED",false);
-define("SUCCESSCODE",200);
+
 
 class MsgType{
 
@@ -23,6 +21,10 @@ class MsgType{
   const STORY_ADD = 7;
   const STORY_DELETE = 8;
 
+  const SUCCESS = true;
+  const FAILED = false;
+  const SUCCESSCODE = 200;
+  
   //数据表名称定义
   const ACCESSTOKEN = "AccessToken";//存放AccessToken
   const DEVICEDATA = "DeviceData";//供给设备拉数据的数据库，存放微信->设备的指令。

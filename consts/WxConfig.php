@@ -10,6 +10,10 @@ class WxConfig
 	//const APPID = "wxa5e24001dad7e539";
 	//const APPSECRET = "a58a456eee50f15524133c06e2d16cdc";
 	const TOKEN = "sookiesu";
+
+	//Sae Key
+	const AccessKey = "zln2k12y03";
+	const SecretKey = "zk35503im2i30xxmil4hliykyzj20521w4xmkhyz";
 }
 
 ?>

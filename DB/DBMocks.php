@@ -82,10 +82,10 @@ class DBMocks{
 		return $_bound;
 	}
 
-	public static function queryStatus($deviceID)
+	public static function queryStatus($table,$deviceID)
 	{
 
-		$sql = "SELECT * FROM ".MsgType::DEVICEDATA. " LIMIT 10";
+		$sql = "SELECT * FROM ".MsgType::$table." LIMIT 10";
 		$data = self::$mysql->getLine( $sql );
 		self::$mysql->runSql( $sql );
 		if( self::$mysql->errno() != 0 )

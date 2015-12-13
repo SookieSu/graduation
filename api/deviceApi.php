@@ -30,10 +30,10 @@ class deviceApi{
 		$deviceID = $_GET['deviceID'];
 		$method = $_GET['method'];
     
-		if($deviceID != '' && $method == 'getStatus')
+		if($deviceID != '' && $method == 'getData')
     {
-  		//$this->getStatus($deviceID);
-      $this->getLatestVoice($deviceID);
+  		$this->getData($deviceID);
+      //$this->getLatestVoice($deviceID);
       //$this->deleteIsReadMessage($deviceID);
     }
 	}
@@ -45,22 +45,23 @@ class deviceApi{
 	 * 2、儿歌获取模式：是否有增加/删除 儿歌/故事的状态；
 	 * @funcParam : deviceID
 	*/
-	protected function getStatus($deviceID)
+	protected function getData($deviceID)
 	{
   		echo "getStatus!";
-  		$_result = DBMocks::queryStatus($deviceID);
+      //获取devicedata中的未读信息
+  		$_result = DBMocks::queryMessageInfo(Msgtype::DEVICEDATA,$deviceID,true);//test
   		for($index = 0;$index < count($_result);$index++) {
   			# code...
-  			switch ($_result[$index]['status']) {
+  			switch ($_result[$index]['msgtype']) {
   				case MsgType::UPDATED:
   					# code...
   					echo "UPDATED!";
   					break;
-  				case MsgType::MSG_UNREAD :
+  				case MsgType::VOICE:
   					# code...
-  					echo "MSG_UNREAD!";
+  					echo "VOICE";
   					$_result[$index]['data'] = $this->getLatestVoice($deviceID);
-            $this->deleteIsReadMessage($deviceID);
+            //$this->deleteIsReadMessage($deviceID);
   					break;
   				case MsgType::SONG_ADD:
   					# code...
@@ -90,13 +91,13 @@ class deviceApi{
   			echo 'data:'.$value['data'];
   		}
   		if($_result){
-  			$_out['message'] = SUCCESS;
-  			$_out['code'] = SUCCESSCODE;
+  			$_out['message'] = Msgtype::SUCCESS;
+  			$_out['code'] = Msgtype::SUCCESSCODE;
   			$_out['data'] = $_result;
   			echo json_encode($_out);
   		}
   		else{
-  			$_out['message'] = FAILED;
+  			$_out['message'] = MsgType::FAILED;
   			$_out['code'] = 0;
   			$_out['data'] = null;
   			echo json_encode($_out);
@@ -111,14 +112,29 @@ class deviceApi{
 	*/
 	protected function getLatestVoice($deviceID)
 	{
+    sae_xhprof_start();//debug start
+
 		echo "getLatestVoice!";
     $retData = DBMocks::queryMessageInfo(MsgType::DEVICEDATA,$deviceID,false);
     if($retData != null)
     {
       echo 'not null retData !';
+
       foreach($retData as $record) 
       {
         DBMocks::setMessageReadInfo(MsgType::DEVICEDATA,$record['id']);
+        $myfilename = "voice-".$record['id']."-".$record['reg_date'].".txt";
+        $myfile = fopen($myfilename, "w");
+        file_put_contents($myfile, $record['data'], LOCK_EX );
+
+        HttpResponse::status(200);
+        HttpResponse::setCache(true);
+        HttpResponse::setContentType('audio/amr');
+        HttpResponse::setContentDisposition("$myfilename.amr", false);
+        HttpResponse::setFile("$myfilename.amr");
+        HttpResponse::send();
+        sae_xhprof_end();//debug end
+        return $this->getVoice($record);
       }
     }
     else
@@ -127,6 +143,12 @@ class deviceApi{
     }
 		return 1;
 	}
+
+  protected function getVoice($data)
+  {
+    echo $data['data'];
+    return $data['data'];
+  }
 
   protected function deleteIsReadMessage($deviceID)
   {

@@ -11,6 +11,9 @@ require_once($dir.'/../consts/WxConfig.php');
 require_once($dir.'/../consts/MsgType.php');
 require_once($dir.'/../DB/DBMocks.php');
 require_once($dir.'/../tools/HttpUtil.php');
+use sinacloud\sae\Storage as Storage;
+
+Storage::setAuth(WxConfig::AccessKey, WxConfig::SecretKey);
 
 $mpApiObj = new mpApi();
 $mpApiObj->start();
@@ -123,11 +126,16 @@ class mpApi
 		//echo $realurl;
 		$retData = HttpUtil::doGet($realurl);
 		echo "print in addVoice ! \n";
+		$bucketName = "fileinsookiesu";
+		$uploadName = "test";
+		//Storage::putBucket($bucketName);
+		$url = "";
+		Storage::putObjectString($retData, $bucketName,$url, array(),array('Content-Type' => 'audio/amr'));
 		//echo var_dump($retData);
 		//test addVoice
 		//if($retData != false)
 		//{
-		DBMocks::addMessageInfo(MsgType::DEVICEDATA,'20151130',MsgType::VOICE,$retData);
+		//DBMocks::addMessageInfo(MsgType::DEVICEDATA,'20151130',MsgType::VOICE,$retData);
 		//}
 		//return $retData;
 	}
