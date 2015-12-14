@@ -15,8 +15,7 @@ use sinacloud\sae\Storage as Storage;
 
 Storage::setAuth(WxConfig::AccessKey, WxConfig::SecretKey);
 
-$mpApiObj = new mpApi();
-$mpApiObj->start();
+mpApi::start();
 //$mpApiObj->addBound('20151130','2');
 //$mpApiObj->addBound('20151201','1');
 //$mpApiObj->addBound('20151202','2');
@@ -32,14 +31,37 @@ class mpApi
 	const DeleteMenuUrl = "https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=ACCESS_TOKEN";
 	const GetMediaUrl = "https://api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id=MEDIA_ID";
 
-	public function start()
+	public static function start()
 	{
 		$userID = $_GET['userID'];
+		$deviceID = $_GET['deviceID'];
 		$method = $_GET['method'];
-    
-		if($userID != '' && $method == 'queryBound'){
-  			$this->queryBound($userID);
-  		}
+    	
+    	switch ($method)
+        {
+        	case "queryBound":
+        		if($userID != null)
+        		{
+  					self::queryBound($userID);
+  				}
+  				break;
+  			case "addBound":
+  				if($userID != null && $deviceID != null)
+  				{
+  					self::addBound($userID,$deviceID);
+  				}
+  				break;
+  			case "deleteBound":
+  				if($userID != null && $deviceID != null)
+  				{
+  					self::deleteBound($userID,$deviceID);
+  				}
+  				break;
+  			default :
+  				echo "unknown method !\n";
+  				break;
+  		}	
+
 	}
 
 	/**
@@ -120,23 +142,33 @@ class mpApi
 		}
 	}
 
+	//for wechat , to add voice to the storage "voicefromwechat"
 	public static function addVoice($userID,$mediaID)
 	{
 		$realurl = str_replace("MEDIA_ID",$mediaID,self::GetMediaUrl);
 		//echo $realurl;
+		$myfilename = "voice-".time().".amr";
 		$retData = HttpUtil::doGet($realurl);
 		echo "print in addVoice ! \n";
-		$bucketName = "fileinsookiesu";
-		$uploadName = "test";
+		$bucketName = MsgType::VOICEFROMWECHAT;
 		//Storage::putBucket($bucketName);
-		$url = "";
-		Storage::putObjectString($retData, $bucketName,$url, array(),array('Content-Type' => 'audio/amr'));
+		$bucketInfo = Storage::getBucketInfo($bucketName);
+		echo var_dump($bucketInfo);
+		$s = new SaeStorage();  
+		
+		//Storage::putObject(Storage::inputFile($retData),$bucketName,$url);
+		//Storage::putObjectString($retData, $bucketName,$url, array(),array('Content-Type' => 'audio/amr'));
 		//echo var_dump($retData);
 		//test addVoice
-		//if($retData != false)
-		//{
-		//DBMocks::addMessageInfo(MsgType::DEVICEDATA,'20151130',MsgType::VOICE,$retData);
-		//}
+		if($retData != false)
+		{
+			//把retData写入bucket中，文件取名为myfilename
+			$s->write ( $bucketName ,  $myfilename , $retData );
+			//获取存入storage后的url
+			$retUrl = $s->getUrl($bucketName,$myfilename);
+			echo $retUrl;
+			DBMocks::addMessageInfo(MsgType::DEVICEDATA,'20151130',MsgType::VOICE,$retUrl);
+		}
 		//return $retData;
 	}
 
@@ -150,37 +182,25 @@ class mpApi
 		 {"name":"儿歌",
 		 "sub_button":[
 		 {
-		 "type":"click",
-		 "name":"添加儿歌",
+		 "type":"view",
+		 "name":"添加/删除儿歌",
 		 "key":"1100"
-		 },
-		 {
-		 "type":"click",
-		 "name":"查询儿歌",
-		 "key":"2200"
-		 },
-		 {
-		 "type":"click",
-		 "name":"删除儿歌",
-		 "key":"2200"
 		 }]},
 		 {
 		 "name":"故事",
 		 "sub_button":[
 		 {
-		 "type":"click",
-		 "name":"添加故事",
+		 "type":"view",
+		 "name":"添加/删除故事",
 		 "key":"1101"
-		 },
+		 }]},
+		 {
+		 "name":"定位",
+		 "sub_button":[
 		 {
 		 "type":"click",
-		 "name":"查询故事",
-		 "key":"2001"
-		 },
-		 {
-		 "type":"click",
-		 "name":"删除故事",
-		 "key":"2001"
+		 "name":"获取定位",
+		 "key":"1102"
 		 }]}
 		 ]}]
 		 }';

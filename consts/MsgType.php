@@ -3,28 +3,63 @@
 
 class MsgType{
 
-
+  /*  wechat状态  */
   //Status define，绑定状态
-  const BIND = 1;
-  const UNBIND = 1;
+  const BIND = "bind";
+  const UNBIND = "unbind";
+
+  // ---------基础消息
+  // 接收/响应
+  const TEXT = "text";
+  const IMAGE = "image";
+  const VOICE = "voice";
+  const VIDEO = "video";
+
+  // 接收
+  const LOCATION = "location";
+  const LINK = "link";
+
+  // 响应
+  const MUSIC = "music";
+  const NEWS = "news";
+
+  // ---------事件推送
+  const EVENT = "event";
+
+  // 事件具体类型
+  const SUBSCRIBE = "subscribe";// 订阅
+  const UNSUBSCRIBE = "unsubscribe";// 取消订阅
+  const SCAN = "SCAN";// 扫码
+  const CLICK = "CLICK";// 点击菜单拉取消息
+  const VIEW = "VIEW";// 点击菜单跳转链接
+
+
+
+  /*  device状态  */
 
   //设备获取以及微信获取的状态
-  const UPDATED = 2;
-  const MSG_UNREAD = 3;
+  const UPDATED = "updated";
+  const MSG_UNREAD = "msg_unread";
 
   //获取的信息类型
-  const VOICE = 4;
+  //const VOICE = "voice";
 
   //设备获取特有
-  const SONG_ADD = 5;
-  const SONG_DELETE = 6;
-  const STORY_ADD = 7;
-  const STORY_DELETE = 8;
+  const SONG_ADD = "song_add";
+  const SONG_DELETE = "song_delete";
+  const STORY_ADD = "story_add";
+  const STORY_DELETE = "story_delete";
 
   const SUCCESS = true;
   const FAILED = false;
   const SUCCESSCODE = 200;
   
+  //storage domain定义
+  const VOICEFROMWECHAT = "voicefromwechat";
+  const VOICEFROMDEVICE = "voicefromdevice";
+  const SONG = "song";
+  const STORY = "story";
+
   //数据表名称定义
   const ACCESSTOKEN = "AccessToken";//存放AccessToken
   const DEVICEDATA = "DeviceData";//供给设备拉数据的数据库，存放微信->设备的指令。
