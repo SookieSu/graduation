@@ -81,14 +81,14 @@ class wechatCallbackapiTest
         switch ($object->Event)
         {
             case MsgType::SUBSCRIBE:
-                $contentStr = "感谢您关注SookieSu"."\n";
+                $contentStr = "感谢您关注SookieSu";
                 break;
             case MsgType::CLICK:
                 $contentStr = "这是一个点击获取消息的事件：click。\n";
                 $boundInfo = mpApi::queryBound($object->$FromUserName);
                 if ($boundInfo == null)
                 {
-                    $contentStr = "这是一个点击获取消息的事件：view。\n 账号未绑定任何设备！\n";
+                    $contentStr = "这是一个点击获取消息的事件：click。\n账号未绑定任何设备！\n";
                 }
                 break;
             case MsgType::VIEW:

@@ -98,11 +98,6 @@ class DBMocks{
 		}
 		return $_status;
 	}
-	
-	public static function changeStatus($deviceID)
-	{
-
-	}
 
 	/*
 	 * @funcName : queryMessageInfo

@@ -184,7 +184,7 @@ class mpApi
 		 {
 		 "type":"view",
 		 "name":"添加/删除儿歌",
-		 "key":"1100"
+		 "url":"http://2.sookiesu.sinaapp.com/view/Song.html"
 		 }]},
 		 {
 		 "name":"故事",
@@ -192,7 +192,7 @@ class mpApi
 		 {
 		 "type":"view",
 		 "name":"添加/删除故事",
-		 "key":"1101"
+		 "url":"http://2.sookiesu.sinaapp.com/view/Story.html"
 		 }]},
 		 {
 		 "name":"定位",
@@ -200,7 +200,7 @@ class mpApi
 		 {
 		 "type":"click",
 		 "name":"获取定位",
-		 "key":"1102"
+		 "key":"1100"
 		 }]}
 		 ]}]
 		 }';

@@ -12,5 +12,5 @@ require_once($dir.'/../api/Message.php');
 
 require_once($dir.'/../api/deviceApi.php');
 require_once($dir.'/../api/mpApi.php');
-require_once($dir.'/../webserver/CallBackService.php');
+require_once($dir.'/../service/CallBackService.php');
 ?>

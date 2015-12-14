@@ -12,8 +12,7 @@ require_once($dir.'/../DB/DBMocks.php');
 
 //echo "hello world!";
 
-$deviceApiObj = new deviceApi();
-$deviceApiObj->start();
+deviceApi::start();
 
 class deviceApi{
 	//private static $_mysql = new DBMocks();
@@ -25,41 +24,46 @@ class deviceApi{
 	);
 	private static $_out = array();
 
-	public function start()
+	public static function start()
 	{
 		$deviceID = $_GET['deviceID'];
 		$method = $_GET['method'];
     
-		if($deviceID != '' && $method == 'getData')
+    switch ($method)
     {
-  		$this->getData($deviceID);
-      //$this->getLatestVoice($deviceID);
-      //$this->deleteIsReadMessage($deviceID);
+      case 'getData':
+        if($deviceID != null)
+        {  
+          $this->getData($deviceID);
+          //$this->getLatestVoice($deviceID);
+          $this->deleteIsReadMessage($deviceID);
+        }
+        break;
+      default:
+        echo "Unknown method ! \n";
+        break;
     }
 	}
 
 	/*
-	 * @funcName : getStatus
+	 * @funcName : getData
  	 * @funcDescription : 通过设备ID获取最新状态：
 	 * 1、语音通信模式：是否有新消息；
 	 * 2、儿歌获取模式：是否有增加/删除 儿歌/故事的状态；
 	 * @funcParam : deviceID
 	*/
-	protected function getData($deviceID)
+	public static function getData($deviceID)
 	{
-  		echo "getStatus!";
+  		echo "getData!";
       //获取devicedata中的未读信息
   		$_result = DBMocks::queryMessageInfo(Msgtype::DEVICEDATA,$deviceID,true);//test
+      /*//暂时不需要这一段0-0，从数据库中把设备的未读信息都取出来，直接返回就好了。
   		for($index = 0;$index < count($_result);$index++) {
   			# code...
   			switch ($_result[$index]['msgtype']) {
-  				case MsgType::UPDATED:
-  					# code...
-  					echo "UPDATED!";
-  					break;
   				case MsgType::VOICE:
   					# code...
-  					echo "VOICE";
+  					echo "VOICE!";
   					$_result[$index]['data'] = $this->getLatestVoice($deviceID);
             //$this->deleteIsReadMessage($deviceID);
   					break;
@@ -68,6 +72,7 @@ class deviceApi{
   					echo "SONG_ADD!";
   					$_result[$index]['data'] = $this->getSong($deviceID);
   					break;
+          case MsgType::SONG_DELETE:
   					# code...
   					echo "SONG_DELETE!";
   					break;
@@ -86,8 +91,9 @@ class deviceApi{
   					break;
   			}	
   		}
+      */
   		foreach ($_result as $value) {
-  			echo 'status:'.$value['status'];
+        echo 'msgtype:'.$value['msgtype'];
   			echo 'data:'.$value['data'];
   		}
   		if($_result){
@@ -123,32 +129,15 @@ class deviceApi{
       foreach($retData as $record) 
       {
         DBMocks::setMessageReadInfo(MsgType::DEVICEDATA,$record['id']);
-        $myfilename = "voice-".$record['id']."-".$record['reg_date'].".txt";
-        $myfile = fopen($myfilename, "w");
-        file_put_contents($myfile, $record['data'], LOCK_EX );
-
-        HttpResponse::status(200);
-        HttpResponse::setCache(true);
-        HttpResponse::setContentType('audio/amr');
-        HttpResponse::setContentDisposition("$myfilename.amr", false);
-        HttpResponse::setFile("$myfilename.amr");
-        HttpResponse::send();
         sae_xhprof_end();//debug end
-        return $this->getVoice($record);
       }
     }
     else
     {
       return MsgType::UPDATED;
     }
-		return 1;
+		return $retData;
 	}
-
-  protected function getVoice($data)
-  {
-    echo $data['data'];
-    return $data['data'];
-  }
 
   protected function deleteIsReadMessage($deviceID)
   {
