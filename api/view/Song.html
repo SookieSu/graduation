@@ -1,0 +1,86 @@
+<html>
+<head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
+<font align="right"> Song Test </font>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.5, maximum-scale=2.0, user-scalable=yes" />
+<br />
+<br />
+<form action="../service/ServiceForSong.php?method=querySong" method="get">
+<table align="center" border="1" width="120">
+        <tr align="center">
+        <td>SongID</td>
+        <td>SongName</td>
+        </tr>
+</table>
+</form>
+
+<form action="../service/ServiceForSong.php" method="post">
+please input song for add: <br /> 
+Song Name : <input type="text" value="" name="song_name" /><br />
+Song Url : <input type="text" value="" name="song_url" />
+<br />
+please input song for delete: <br />
+Song ID : <input type="text" value="" name="song_id" /><br />
+<input type="submit" value="Submit" />
+<br />
+<p>返回值: <span id="txtHint"></span></p>
+</form>
+<script>
+showHint("test");
+function showHint(str)
+{
+	if (str.length==0)
+	{ 
+		document.getElementById("txtHint").innerHTML="";
+		return;
+	}
+	if (window.XMLHttpRequest)
+	{// code for IE7+, Firefox, Chrome, Opera, Safari
+		xmlhttp=new XMLHttpRequest();
+	}
+	else
+	{// code for IE6, IE5
+		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	}	
+	xmlhttp.onreadystatechange=function()
+	{
+		if (xmlhttp.readyState==4 && xmlhttp.status==200)
+		{
+			document.getElementById("txtHint").innerHTML=xmlhttp.responseText;
+		}
+	}
+	xmlhttp.open("GET","../service/ServiceForSong.php?method=querySong",true);
+	xmlhttp.send();
+}
+
+
+function postData(str)
+{
+	if (str.length==0)
+	{ 
+		document.getElementById("txtHint").innerHTML="";
+		return;
+	}
+	if (window.XMLHttpRequest)
+	{// code for IE7+, Firefox, Chrome, Opera, Safari
+		xmlhttp=new XMLHttpRequest();
+	}
+	else
+	{// code for IE6, IE5
+		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	}	
+	xmlhttp.onreadystatechange=function()
+	{
+		if (xmlhttp.readyState==4 && xmlhttp.status==200)
+		{
+			document.getElementById("txtHint").innerHTML=xmlhttp.responseText;
+		}
+	}
+	xmlhttp.open("POST","../service/ServiceForSong.php",true);
+	xmlhttp.send();
+}
+</script>
+</body>
+</html>
