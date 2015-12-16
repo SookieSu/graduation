@@ -48,16 +48,23 @@ class DBMocks{
 
 		//创建DeviceData数据表
 		/*
-		$sql = "CREATE TABLE WeixinData (
+		$sql = "CREATE TABLE MediaData (
 		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		userid  VARCHAR(30) NOT NULL,
 		deviceid VARCHAR(30) NOT NULL,
 		msgtype VARCHAR(30) NOT NULL,
-		isread VARCHAR(30) NOT NULL,
 		data MEDIUMBLOB,
 		reg_date TIMESTAMP
 		)";
-		*/
+		self::$mysql->runSql( $sql );
+		
+		$sql = "CREATE TABLE SNSAccessToken (
+		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+		code  VARCHAR(50) NOT NULL,
+		data VARCHAR(500) NOT NULL,
+		reg_date TIMESTAMP
+		)";
+		self::$mysql->runSql( $sql );*/
 		//$mysql->closeDb();
 	}
 
@@ -84,7 +91,6 @@ class DBMocks{
 
 	public static function queryStatus($table,$deviceID)
 	{
-
 		$sql = "SELECT * FROM ".MsgType::$table." LIMIT 10";
 		$data = self::$mysql->getLine( $sql );
 		self::$mysql->runSql( $sql );
@@ -102,26 +108,39 @@ class DBMocks{
 	/*
 	 * @funcName : queryMessageInfo
  	 * @funcDescription : 查询某表格，某用户id的未读/已读/所有信息，返回一个对象数组
-	 * @funcParam : $table,$deviceID,$isread
+	 * @funcParam : $table,$id,$isread
 	*/
-	public static function queryMessageInfo($table,$deviceID,$isread)
+	public static function queryMessageInfo($table,$id,$isread = null)
 	{
-		if($isread != null)
+		$retbound = self::queryBoundInfo($id);
+		//echo "print retbound ! ".var_dump($retbound);
+		if($retbound == null)
 		{
-			$sql = "SELECT * FROM ".$table. " WHERE isread = '$isread' AND deviceid = '$deviceID' ";
+			return false;
 		}
-		else{
-			$sql = "SELECT * FROM ".$table. " WHERE deviceid = '$deviceID' ";
-		}
-		$data = self::$mysql->getData( $sql );
-		if( self::$mysql->errno() != 0 && $data == null )
+		foreach ($retbound as $record) 
 		{
-    		die( "Error in queryMessageInfo :" . self::$mysql->errmsg() );
-		}
-		else {
-			//echo json_encode($data);
-			echo var_dump($data);
-			return $data;
+			$userID = $record['userID'];
+			$deviceID = $record['deviceID'];
+			if($isread != null)
+			{
+				$sql = "SELECT * FROM ".$table. " WHERE isread = '$isread' AND deviceid = '$deviceID' AND userid = '$userID' ";
+			}
+			else{
+				$sql = "SELECT * FROM ".$table. " WHERE deviceid = '$deviceID' AND userid = '$userID' ";
+			}
+			$data = self::$mysql->getData( $sql );
+			if( self::$mysql->errno() != 0  )
+			{
+    			die( "Error in queryMessageInfo :" . self::$mysql->errmsg() );
+    			return false;
+			}
+			else 
+			{
+				//echo json_encode($data);
+				echo var_dump($data);
+				return $data;
+			}
 		}
 	}
 
@@ -133,7 +152,11 @@ class DBMocks{
 	public static function addMessageInfo($table,$id,$msgtype,$data)
 	{
 		$retbound = self::queryBoundInfo($id);
-		echo "print retbound ! ".var_dump($retbound);
+		//echo "print retbound ! ".var_dump($retbound);
+		if($retbound == null)
+		{
+			return false;
+		}
 		foreach ($retbound as $record) 
 		{
 			# code...
@@ -159,7 +182,73 @@ class DBMocks{
 			}
 		}
 	}
+	public static function addMediaInfo($table,$id,$msgtype,$data)
+	{
+		$retbound = self::queryBoundInfo($id);
+		//echo "print retbound ! ".var_dump($retbound);
+		if($retbound == null)
+		{
+			return false;
+		}
+		foreach ($retbound as $record) 
+		{
+			# code...
+			$userID = $record['userID'];
+			$deviceID = $record['deviceID'];
+			if($data != null)
+			{
+				$tmpdata = self::$mysql->escape($data);
+			}
+			$sql = "INSERT INTO ".$table."( `userid` ,`deviceid` , `msgtype` , `data` ) "." VALUES "." ( '$userID' , '$deviceID' , '$msgtype' , '$tmpdata' ) ";
+			//echo "sql : ". $sql;
+			self::$mysql->runSql( $sql );
+			if( self::$mysql->errno() != 0 )
+			{
+			    die( "Error in addMediaInfo :" . self::$mysql->errmsg() );
+			    return false;
+			}
+			else
+			{
+				echo "success addMediaInfo  : ".$table. ":" . $userID . ":" . $deviceID . " ! \n";
+				return true;
+			}
+		}
+	}
 
+	public static function queryMediaInfo($table,$id,$msgtype,$songID = null)
+	{
+		$retbound = self::queryBoundInfo($id);
+		//echo "print retbound ! ".var_dump($retbound);
+		if($retbound == null)
+		{
+			return false;
+		}
+		foreach ($retbound as $record) 
+		{
+			# code...
+			$userID = $record['userID'];
+			$deviceID = $record['deviceID'];
+			if($songID != null)
+			{
+				$sql = "SELECT * FROM ".$table. " WHERE deviceid = '$deviceID' AND userid = '$userID' AND msgtype = '$msgtype' AND id = '$songID' ";
+			}
+			else{
+				$sql = "SELECT * FROM ".$table. " WHERE deviceid = '$deviceID' AND userid = '$userID' AND msgtype = '$msgtype'";
+			}
+			$data = self::$mysql->getData( $sql );
+			if( self::$mysql->errno() != 0 )
+			{
+			    die( "Error in queryMessageInfo :" . self::$mysql->errmsg() );
+			    return false;
+			}
+			else 
+			{
+				//echo json_encode($data);
+				echo var_dump($data);
+				return $data;
+			}
+		}
+	}
 	/*
 	 * @funcName : setMessageReadInfo
  	 * @funcDescription : 设置某表格的某record信息已读，返回bool类型
@@ -216,9 +305,7 @@ class DBMocks{
 			echo "success bound  : " . $userID . " : " . $deviceID . " ! \n";
 			return true;
 		}
-
 	}
-
 	public static function removeBoundInfo($userID,$deviceID)
 	{
 		$sql = "DELETE FROM ".MsgType::BOUNDDATA." WHERE userID = '$userID' AND deviceID = '$deviceID'";
@@ -262,6 +349,57 @@ class DBMocks{
 			//echo json_encode($data);
 			//echo var_dump($data);
 			return $data['access_token'];
+		}
+	}
+
+	public static function updateSNSAccessToken($code,$SNSaccess_token)
+	{
+		//$sql = "INSERT  INTO ".MsgType::SNSACCESSTOKEN." ( `code` , `data` ) "." VALUES "." ( '$code' , '$SNSaccess_token') ";
+		echo "print in update SNSaccess_token : \n";
+		//echo var_dump($code);
+		//echo var_dump($SNSaccess_token);
+		$access_token = json_encode($SNSaccess_token);
+		$sql = "UPDATE ".MsgType::SNSACCESSTOKEN." SET code = '$code' , data = '$access_token'  WHERE id = '3' ";
+		//echo $sql;
+		self::$mysql->runSql( $sql );
+		if( self::$mysql->errno() != 0 )
+		{
+    		die( "Error in updateSNSAccessToken :" . self::$mysql->errmsg() );
+		}
+		else
+		{
+			echo "success update SNS access_token ! \n";
+			return true;
+		}
+	}
+	public static function querySNSAccessToken()
+	{
+		$sql = "SELECT * FROM ".MsgType::SNSACCESSTOKEN." WHERE id = '3' ";
+		$data = self::$mysql->getLine( $sql );
+		
+		if( self::$mysql->errno() != 0  )
+		{
+    		die( "Error in querySNSAccessToken :" . self::$mysql->errmsg() );
+		}
+		else if ( $data != null){
+			//echo json_encode($data);
+			echo var_dump($data);
+			return $data;
+		}
+	}
+
+	public static function Test()
+	{
+		//$sql = "INSERT  INTO ".MsgType::SNSACCESSTOKEN." ( `code` , `data` ) "." VALUES "." ( 'lalala' , 'llllll') ";
+		//$sql = "DELETE FROM ".MsgType::SNSACCESSTOKEN;
+		//self::$mysql->runSql( $sql );
+		if( self::$mysql->errno() != 0  )
+		{
+    		die( "Error in Test :" . self::$mysql->errmsg() );
+		}
+		else {
+			echo 'ok';
+			return true;
 		}
 	}
 }

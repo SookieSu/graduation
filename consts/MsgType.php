@@ -33,7 +33,10 @@ class MsgType{
   const CLICK = "CLICK";// 点击菜单拉取消息
   const VIEW = "VIEW";// 点击菜单跳转链接
 
-
+  //网页授权获取用户基本信息接口
+  //SCOPE
+  const SNSAPI_BASE = "snsapi_base";
+  const SNSAPI_USERINFO = "snsapi_userinfo";
 
   /*  device状态  */
 
@@ -62,9 +65,11 @@ class MsgType{
 
   //数据表名称定义
   const ACCESSTOKEN = "AccessToken";//存放AccessToken
+  const SNSACCESSTOKEN = "SNSAccessToken";//存放code与openid
   const DEVICEDATA = "DeviceData";//供给设备拉数据的数据库，存放微信->设备的指令。
   const WEIXINDATA = "WeixinData";//存放设备->微信的语音
   const BOUNDDATA = "BoundData";//存放微信与设备绑定的信息
+  const MEDIADATA = "MediaData";//存放多媒体文件信息
 
   //微信消息模板
   const textTpl = 

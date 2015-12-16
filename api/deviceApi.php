@@ -34,9 +34,8 @@ class deviceApi{
       case 'getData':
         if($deviceID != null)
         {  
-          $this->getData($deviceID);
-          //$this->getLatestVoice($deviceID);
-          $this->deleteIsReadMessage($deviceID);
+          self::getData($deviceID);
+          //self::deleteIsReadMessage($deviceID);
         }
         break;
       default:
@@ -56,7 +55,7 @@ class deviceApi{
 	{
   		echo "getData!";
       //获取devicedata中的未读信息
-  		$_result = DBMocks::queryMessageInfo(Msgtype::DEVICEDATA,$deviceID,true);//test
+  		$_result = DBMocks::queryMessageInfo(Msgtype::DEVICEDATA,$deviceID);//test
       /*//暂时不需要这一段0-0，从数据库中把设备的未读信息都取出来，直接返回就好了。
   		for($index = 0;$index < count($_result);$index++) {
   			# code...

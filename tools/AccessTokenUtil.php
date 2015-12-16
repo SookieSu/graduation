@@ -40,7 +40,6 @@ class AccessTokenUtil{
 		return self::queryAccessToken()->getAccess_token();
 	}
 
-	
 	//刷新并返回新凭证
 	public static function refreshAndGetToken() {
 		$tk = self::queryAccessToken();
@@ -52,7 +51,7 @@ class AccessTokenUtil{
 		}
 		return self::getTokenStr();
 	}
-	
+
 	// 刷新凭证并更新全局凭证值
 	private static function refreshToken() {
 		echo "refresh token...";
@@ -105,7 +104,7 @@ class AccessTokenUtil{
 		self::$token->setAccess_token(DBMocks::queryAccessToken());
 		return self::$token;
 	}
-
+	
 	/**
 	 * 保存token
 	 */

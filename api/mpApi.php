@@ -25,11 +25,16 @@ mpApi::start();
 class mpApi
 {
 	const GetAccessTokenUrl = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".WxConfig::APPID."&secret=".WxConfig::APPSECRET;
+	const GetSNSAccessTokenUrl = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=".WxConfig::APPID."&secret=".WxConfig::APPSECRET."&code=CODE&grant_type=authorization_code";
+	const RefreshSNSAccessTokenUrl = "https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=".WxConfig::APPID."&grant_type=refresh_token&refresh_token=REFRESH_TOKEN";
 	const CustomSendUrl = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=ACCESS_TOKEN";
 	const CreateMenuUrl = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=ACCESS_TOKEN";
 	const QueryMenuUrl = "https://api.weixin.qq.com/cgi-bin/menu/get?access_token=ACCESS_TOKEN";
 	const DeleteMenuUrl = "https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=ACCESS_TOKEN";
 	const GetMediaUrl = "https://api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id=MEDIA_ID";
+	const GetCodeUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=".WxConfig::APPID."&redirect_uri=REDIRECT_URI&response_type=code&scope=".MsgType::SNSAPI_BASE."&state=STATE#wechat_redirect";
+	const ServiceForSongUrl = "https://2.sookiesu.sinaapp.com/view/Song.html";
+	const ServiceForStoryUrl = "http://2.sookiesu.sinaapp.com/view/Story.html";
 
 	public static function start()
 	{
@@ -57,11 +62,13 @@ class mpApi
   					self::deleteBound($userID,$deviceID);
   				}
   				break;
+  			case "menuCreate":
+  				self::menuCreate();
+  				break;
   			default :
   				echo "unknown method !\n";
   				break;
   		}	
-
 	}
 
 	/**
@@ -73,6 +80,15 @@ class mpApi
 	public static function getAccessToken()
 	{
 		$resultAccessToken = HttpUtil::executeGet(self::GetAccessTokenUrl);
+		$jsonAccessToken = json_decode($resultAccessToken,true);
+		return $jsonAccessToken;
+		//此处返回获取access_token接口后的json对象
+	}
+
+	public static function getSNSAccessToken($code)
+	{
+		$realUrl = str_replace("CODE", $code, self::GetSNSAccessTokenUrl);
+		$resultAccessToken = HttpUtil::executeGet($realUrl);
 		$jsonAccessToken = json_decode($resultAccessToken,true);
 		return $jsonAccessToken;
 		//此处返回获取access_token接口后的json对象
@@ -167,7 +183,7 @@ class mpApi
 			//获取存入storage后的url
 			$retUrl = $s->getUrl($bucketName,$myfilename);
 			echo $retUrl;
-			DBMocks::addMessageInfo(MsgType::DEVICEDATA,'20151130',MsgType::VOICE,$retUrl);
+			return DBMocks::addMessageInfo(MsgType::DEVICEDATA,$userID,MsgType::VOICE,$retUrl);
 		}
 		//return $retData;
 	}
@@ -177,33 +193,38 @@ class mpApi
 	 * 文档位置：自定义菜单->自定义菜单创建接口
 	 */
 	public static function menuCreate() {
+		//$subSong = array(array("type" => "view" , "name" => "添加/删除儿歌" , "url" => "SERVICE_FOR_SONG_URL") );
 		$menuPostString = '{
-		 "button":[
-		 {"name":"儿歌",
-		 "sub_button":[
-		 {
-		 "type":"view",
-		 "name":"添加/删除儿歌",
-		 "url":"http://2.sookiesu.sinaapp.com/view/Song.html"
-		 }]},
-		 {
-		 "name":"故事",
-		 "sub_button":[
-		 {
-		 "type":"view",
-		 "name":"添加/删除故事",
-		 "url":"http://2.sookiesu.sinaapp.com/view/Story.html"
-		 }]},
-		 {
-		 "name":"定位",
-		 "sub_button":[
-		 {
-		 "type":"click",
-		 "name":"获取定位",
-		 "key":"1100"
-		 }]}
-		 ]}]
-		 }';
+		 "button":[{
+		 	"name":"儿歌",
+		 	"sub_button":[{
+		 		"type":"view",
+		 		"name":"添加/删除儿歌",
+		 		"url":"https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx2ed71d43420c6a88&redirect_uri=http://2.sookiesu.sinaapp.com/view/Song.html&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect"
+		 	}]},{
+		 	"name":"故事",
+		 	"sub_button":[{
+		 		"type":"view",
+		 		"name":"添加/删除故事",
+		 		"url":"https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx2ed71d43420c6a88&redirect_uri=http://2.sookiesu.sinaapp.com/view/Story.html&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect"
+		 	}]},{
+		 	"name":"定位",
+		 	"sub_button":[{
+		 		"type":"click",
+		 		"name":"获取定位",
+		 		"key":"1100"
+		 	}]
+		 }]
+		}';
+		/*
+		$songUrl = str_replace("REDIRECT_URI", self::ServiceForSongUrl, self::GetCodeUrl);
+		$storyUrl = str_replace("REDIRECT_URI", self::ServiceForStoryUrl, self::GetCodeUrl);
+		echo $songUrl.":".$storyUrl;
+		str_replace("SERVICE_FOR_SONG_URL", $songUrl, $menuPostString);
+		str_replace("SERVICE_FOR_STORY_URL", $storyUrl, $menuPostString);
+		
+		*/
+		echo $menuPostString;
 		return HttpUtil::doPost(self::CreateMenuUrl, $menuPostString);
 	}
 
