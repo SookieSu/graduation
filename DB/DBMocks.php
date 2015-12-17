@@ -57,14 +57,15 @@ class DBMocks{
 		reg_date TIMESTAMP
 		)";
 		self::$mysql->runSql( $sql );
-		
-		$sql = "CREATE TABLE SNSAccessToken (
+		*/
+		$sql = "CREATE TABLE State (
 		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-		code  VARCHAR(50) NOT NULL,
-		data VARCHAR(500) NOT NULL,
+		userid  VARCHAR(30) NOT NULL,
+		deviceid VARCHAR(30) NOT NULL,
+		state VARCHAR(30) NOT NULL,
 		reg_date TIMESTAMP
 		)";
-		self::$mysql->runSql( $sql );*/
+		self::$mysql->runSql( $sql );
 		//$mysql->closeDb();
 	}
 
@@ -162,7 +163,7 @@ class DBMocks{
 			# code...
 			$userID = $record['userID'];
 			$deviceID = $record['deviceID'];
-			$isread = false;
+			$isread = "false";
 			if($data != null)
 			{
 				$tmpdata = self::$mysql->escape($data);
@@ -182,6 +183,121 @@ class DBMocks{
 			}
 		}
 	}
+
+	public static function addStateInfo($id,$state)
+	{
+		$retbound = self::queryBoundInfo($id);
+		//echo "print retbound ! ".var_dump($retbound);
+		if($retbound == null)
+		{
+			return false;
+		}
+		foreach ($retbound as $record) 
+		{
+			# code...
+			$userID = $record['userID'];
+			$deviceID = $record['deviceID'];
+			$sql = "INSERT INTO ".MsgType::STATE."( `userid` ,`deviceid` , `state` ) "." VALUES "." ( '$userID' , '$deviceID' , '$state' ) ";
+			//echo "sql : ". $sql;
+			self::$mysql->runSql( $sql );
+			if( self::$mysql->errno() != 0 )
+			{
+			    die( "Error in addStateInfo :" . self::$mysql->errmsg() );
+			    return false;
+			}
+			else
+			{
+				echo "success addStateInfo  : ". $userID . ":" . $deviceID . " ! \n";
+				return true;
+			}
+		}
+	}
+
+	public static function queryStateInfo($id)
+	{
+		$retbound = self::queryBoundInfo($id);
+		//echo "print retbound ! ".var_dump($retbound);
+		if($retbound == null)
+		{
+			return false;
+		}
+		foreach ($retbound as $record) 
+		{
+			# code...
+			$userID = $record['userID'];
+			$deviceID = $record['deviceID'];
+			$sql = "SELECT state FROM ".MsgType::STATE. " WHERE deviceid = '$deviceID' AND userid = '$userID'";
+			$data = self::$mysql->getLine( $sql );
+			if( self::$mysql->errno() != 0 )
+			{
+			    die( "Error in queryStateInfo :" . self::$mysql->errmsg() );
+			    return false;
+			}
+			else 
+			{
+				//echo json_encode($data);
+				echo var_dump($data);
+				return $data;
+			}
+		}
+	}
+	public static function updateStateInfo($table,$id,$state)
+	{
+		$retbound = self::queryBoundInfo($id);
+		//echo "print retbound ! ".var_dump($retbound);
+		if($retbound == null)
+		{
+			return false;
+		}
+		foreach ($retbound as $record) 
+		{
+			# code...
+			$userID = $record['userID'];
+			$deviceID = $record['deviceID'];
+			$sql = "UPDATE ".MsgType::STATE." SET state = '$state' WHERE deviceid = '$deviceID' AND userid = '$userID'";
+			//echo $sql;
+			self::$mysql->runSql( $sql );
+			if( self::$mysql->errno() != 0 )
+			{
+    			die( "Error in updateStateInfo :" . self::$mysql->errmsg() );
+			}
+			else
+			{
+				echo "success update StateInfo ! \n";
+				return true;
+			}
+		}
+	}
+
+	public static function deleteStateInfo($id)
+	{
+		$retbound = self::queryBoundInfo($id);
+		//echo "print retbound ! ".var_dump($retbound);
+		if($retbound == null)
+		{
+			return false;
+		}
+		foreach ($retbound as $record) 
+		{
+			# code...
+			$userID = $record['userID'];
+			$deviceID = $record['deviceID'];
+			$sql = "DELETE FROM ".MsgType::STATE." WHERE deviceid = '$deviceID' AND userid = '$userID' " ;
+			//echo $sql;
+			self::$mysql->runSql( $sql );
+			if( self::$mysql->errno() != 0 )
+			{
+    			die( "Error in deleteStateInfo :" . self::$mysql->errmsg() );
+    			return false;
+			}
+			else
+			{
+				echo "success deleteStateInfo  : ".$id ." ! \n";
+				return true;
+			}
+		}
+	}
+
 	public static function addMediaInfo($table,$id,$msgtype,$data)
 	{
 		$retbound = self::queryBoundInfo($id);
@@ -217,6 +333,7 @@ class DBMocks{
 
 	public static function queryMediaInfo($table,$id,$msgtype,$songID = null)
 	{
+		//echo "id : \n".$id;
 		$retbound = self::queryBoundInfo($id);
 		//echo "print retbound ! ".var_dump($retbound);
 		if($retbound == null)
@@ -256,7 +373,7 @@ class DBMocks{
 	*/
 	public static function setMessageReadInfo($table,$recordID)
 	{
-		$sql = "UPDATE ".$table." SET isread = true "." WHERE id = '$recordID' ";
+		$sql = "UPDATE ".$table." SET isread = 'true' "." WHERE id = '$recordID' ";
 		//echo $sql;
 		self::$mysql->runSql( $sql );
 		if( self::$mysql->errno() != 0 )
@@ -355,7 +472,7 @@ class DBMocks{
 	public static function updateSNSAccessToken($code,$SNSaccess_token)
 	{
 		//$sql = "INSERT  INTO ".MsgType::SNSACCESSTOKEN." ( `code` , `data` ) "." VALUES "." ( '$code' , '$SNSaccess_token') ";
-		echo "print in update SNSaccess_token : \n";
+		//echo "print in update SNSaccess_token : \n";
 		//echo var_dump($code);
 		//echo var_dump($SNSaccess_token);
 		$access_token = json_encode($SNSaccess_token);
@@ -383,24 +500,50 @@ class DBMocks{
 		}
 		else if ( $data != null){
 			//echo json_encode($data);
-			echo var_dump($data);
+			//echo var_dump($data);
 			return $data;
 		}
 	}
 
-	public static function Test()
+	public static function Test($method = null,$id = null)
 	{
-		//$sql = "INSERT  INTO ".MsgType::SNSACCESSTOKEN." ( `code` , `data` ) "." VALUES "." ( 'lalala' , 'llllll') ";
+		//$sql = "INSERT  INTO ".MsgType::STATE." ( `code` , `data` ) "." VALUES "." ( 'lalala' , 'llllll') ";
 		//$sql = "DELETE FROM ".MsgType::SNSACCESSTOKEN;
 		//self::$mysql->runSql( $sql );
-		if( self::$mysql->errno() != 0  )
+		/*if( self::$mysql->errno() != 0  )
 		{
     		die( "Error in Test :" . self::$mysql->errmsg() );
 		}
 		else {
 			echo 'ok';
 			return true;
+		}*/
+		switch ($method) {
+			case 'queryBoundInfo':
+				# code...
+				self::queryBoundInfo($id);
+				break;
+			case 'queryMessageInfo':
+				# code...
+				self::queryMessageInfo(MsgType::DEVICEDATA,$id);
+				break;
+			case 'queryMediaInfo':
+				# code...
+				self::queryMediaInfo(MsgType::MEDIADATA,$id,MsgType::SONG);
+				break;
+			case 'queryAccessToken':
+				# code...
+				self::queryAccessToken();
+				break;
+			case 'querySNSAccessToken':
+				# code...
+				self::querySNSAccessToken();
+				break;
+			default:
+				# code...
+				break;
 		}
+		
 	}
 }
 

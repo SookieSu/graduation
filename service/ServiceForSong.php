@@ -39,8 +39,11 @@ class ServiceForSong
 		$refer = $_SERVER['HTTP_REFERER'];
 		$retData = DBMocks::querySNSAccessToken();
 		$retSNSAccessToken = json_decode($retData['data'],true);
-		eregi('code=[a-zA-Z0-9-]+', $refer,$retCode);
-    	$code = explode("=", $retCode[0])[1];
+		preg_match('/code=[a-zA-Z0-9-]+/', $refer,$retCode);
+    	$tmpcode = explode("=", $retCode[0]);
+    	$code = $tmpcode[1];
+    	//echo var_dump($retData);
+    	//echo $code;
     	if($code == $retData['code'])
     	{
     		//从以前的code中取openid
@@ -53,6 +56,7 @@ class ServiceForSong
     		$userID = $newSNSAccessToken['openid'];
     		DBMocks::updateSNSAccessToken($code,$newSNSAccessToken);
     	}
+    	//echo "getUserID : \n".$userID;
     	return $userID;
 	}
 	public static function addSong($userID,$songName,$songUrl)
@@ -60,8 +64,9 @@ class ServiceForSong
 		echo "print in addSong ! \n";
 		$myfilename = "song-".$songName."-".time().".mp3";
 		$retData = array('songName' => $songName, 'songUrl' => $songUrl );
-		if (DBMocks::addMediaInfo(MsgType::MEDIADATA,$userID,MsgType::SONG,$retData) == true){
-			return DBMocks::addMessageInfo(MsgType::DEVICEDATA,$userID,MsgType::SONG_ADD,$retData);
+		$data = json_encode($retData);
+		if (DBMocks::addMediaInfo(MsgType::MEDIADATA,$userID,MsgType::SONG,$data) == true){
+			return DBMocks::addMessageInfo(MsgType::DEVICEDATA,$userID,MsgType::SONG_ADD,$data);
 		}else{
 			echo "add Song failed ! \n";
 			return false;

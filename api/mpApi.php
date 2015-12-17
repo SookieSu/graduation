@@ -33,8 +33,8 @@ class mpApi
 	const DeleteMenuUrl = "https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=ACCESS_TOKEN";
 	const GetMediaUrl = "https://api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id=MEDIA_ID";
 	const GetCodeUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=".WxConfig::APPID."&redirect_uri=REDIRECT_URI&response_type=code&scope=".MsgType::SNSAPI_BASE."&state=STATE#wechat_redirect";
-	const ServiceForSongUrl = "https://2.sookiesu.sinaapp.com/view/Song.html";
-	const ServiceForStoryUrl = "http://2.sookiesu.sinaapp.com/view/Story.html";
+	const ServiceForSongUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx2ed71d43420c6a88&redirect_uri=http://2.sookiesu.sinaapp.com/view/Song.html&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect";
+	const ServiceForStoryUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx2ed71d43420c6a88&redirect_uri=http://2.sookiesu.sinaapp.com/view/Story.html&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect";
 
 	public static function start()
 	{
@@ -198,21 +198,31 @@ class mpApi
 		 "button":[{
 		 	"name":"儿歌",
 		 	"sub_button":[{
-		 		"type":"view",
+		 		"type":"click",
 		 		"name":"添加/删除儿歌",
-		 		"url":"https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx2ed71d43420c6a88&redirect_uri=http://2.sookiesu.sinaapp.com/view/Song.html&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect"
+		 		"key":"song_open"
+		 	},
+		 	{
+		 		"type":"click",
+		 		"name":"退出儿歌模式",
+		 		"key":"song_exit"
 		 	}]},{
 		 	"name":"故事",
 		 	"sub_button":[{
-		 		"type":"view",
+		 		"type":"click",
 		 		"name":"添加/删除故事",
-		 		"url":"https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx2ed71d43420c6a88&redirect_uri=http://2.sookiesu.sinaapp.com/view/Story.html&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect"
+		 		"key":"story_open"
+		 	},
+		 	{
+		 		"type":"click",
+		 		"name":"退出故事模式",
+		 		"key":"story_exit"
 		 	}]},{
 		 	"name":"定位",
 		 	"sub_button":[{
 		 		"type":"click",
 		 		"name":"获取定位",
-		 		"key":"1100"
+		 		"key":"1300"
 		 	}]
 		 }]
 		}';
@@ -222,9 +232,8 @@ class mpApi
 		echo $songUrl.":".$storyUrl;
 		str_replace("SERVICE_FOR_SONG_URL", $songUrl, $menuPostString);
 		str_replace("SERVICE_FOR_STORY_URL", $storyUrl, $menuPostString);
-		
 		*/
-		echo $menuPostString;
+		//echo $menuPostString;
 		return HttpUtil::doPost(self::CreateMenuUrl, $menuPostString);
 	}
 

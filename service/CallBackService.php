@@ -85,16 +85,35 @@ class wechatCallbackapiTest
                 break;
             case MsgType::CLICK:
                 $contentStr = "这是一个点击获取消息的事件：click。\n";
-                $boundInfo = mpApi::queryBound($object->$FromUserName);
+                $boundInfo = mpApi::queryBound($object->FromUserName);
                 if ($boundInfo == null)
                 {
-                    $contentStr = "这是一个点击获取消息的事件：click。\n账号未绑定任何设备！\n";
+                    $contentStr = $object->$FromUserName."\n这是一个点击获取消息的事件：click。\n账号未绑定任何设备！\n";
+                }else{
+                    switch($object->EventKey)
+                    {
+                        case MsgType::SONG_OPEN:
+                            $contentStr = "SONG_OPEN";
+                            break;
+                        case MsgType::SONG_EXIT:
+                            $contentStr = "SONG_EXIT";
+                            break;
+                        case MsgType::STORY_OPEN:
+                            $contentStr = "STORY_OPEN";
+                            break;
+                        case MsgType::STORY_EXIT:
+                            $contentStr = "STORY_EXIT";
+                            break;
+                        default:
+                            $contentStr = "o(^▽^)o";
+                            break;
+                    }
                 }
                 break;
             case MsgType::VIEW:
                 $contentStr = "这是一个点击跳转页面的事件：view。\n";
-                echo $object->$FromUserName;
-                $boundInfo = mpApi::queryBound($object->$FromUserName);
+                echo $object->FromUserName;
+                $boundInfo = mpApi::queryBound($object->FromUserName);
                 if ($boundInfo == null)
                 {
                     $contentStr = "这是一个点击跳转页面的事件：view。\n 账号未绑定任何设备！\n";

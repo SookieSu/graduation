@@ -33,6 +33,13 @@ class MsgType{
   const CLICK = "CLICK";// 点击菜单拉取消息
   const VIEW = "VIEW";// 点击菜单跳转链接
 
+
+  //EventKey定义
+  const SONG_OPEN = "song_open";
+  const SONG_EXIT = "song_exit";
+  const STORY_OPEN = "story_open";
+  const STORY_EXIT = "story_exit";
+
   //网页授权获取用户基本信息接口
   //SCOPE
   const SNSAPI_BASE = "snsapi_base";
@@ -70,6 +77,12 @@ class MsgType{
   const WEIXINDATA = "WeixinData";//存放设备->微信的语音
   const BOUNDDATA = "BoundData";//存放微信与设备绑定的信息
   const MEDIADATA = "MediaData";//存放多媒体文件信息
+  const STATE = "State";
+
+  //状态定义
+  const STATE_SONG = "state_song";
+  const STATE_STORY = "state_story";
+  const STATE_BASE = "state_base";
 
   //微信消息模板
   const textTpl = 
