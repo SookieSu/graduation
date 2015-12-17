@@ -57,7 +57,7 @@ class DBMocks{
 		reg_date TIMESTAMP
 		)";
 		self::$mysql->runSql( $sql );
-		*/
+		
 		$sql = "CREATE TABLE State (
 		id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		userid  VARCHAR(30) NOT NULL,
@@ -65,7 +65,7 @@ class DBMocks{
 		state VARCHAR(30) NOT NULL,
 		reg_date TIMESTAMP
 		)";
-		self::$mysql->runSql( $sql );
+		self::$mysql->runSql( $sql );*/
 		//$mysql->closeDb();
 	}
 
