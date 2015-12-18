@@ -4,12 +4,12 @@ require_once($dir.'/../consts/WxConfig.php');
 require_once($dir.'/../consts/MsgType.php');
 require_once($dir.'/../DB/DBMocks.php');
 require_once($dir.'/../tools/HttpUtil.php');
-
-
+require_once($dir.'/../tools/BaiduMusic.php');
 
 findApi::start();
 
 class findApi{
+
 	const BaiduMusicUrl = "http://music.baidu.com";
 	const SearchSongUrl = "http://music.baidu.com/search?key=";
 	const SearchStoryUrl = "http://music.baidu.com/search?key=";
@@ -35,12 +35,9 @@ class findApi{
 	public static function findSong($songName)
 	{
 		echo "print in findSong\n";
-		$url = self::getDetailUrl($songName);
-		$retData = HttpUtil::executeGet($url);
-		//echo $retData;
-		preg_match('/\/song\/\d+\/download/', $retData,$songItemArray);
-		echo var_dump($songItemArray);
-		return ;
+		$retSongArray = BaiduMusic::getSong($songName);
+		//此处返回数组第一个元素
+		return $retSongArray[0];
 	}
 
 	private static function getDetailUrl($songName)

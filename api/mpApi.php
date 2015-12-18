@@ -16,10 +16,6 @@ use sinacloud\sae\Storage as Storage;
 Storage::setAuth(WxConfig::AccessKey, WxConfig::SecretKey);
 
 mpApi::start();
-//$mpApiObj->addBound('20151130','2');
-//$mpApiObj->addBound('20151201','1');
-//$mpApiObj->addBound('20151202','2');
-//$mpApiObj->removeBound('20151230','2');
 //echo mpApi::getAccessToken();
 
 class mpApi

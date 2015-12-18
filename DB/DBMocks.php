@@ -241,7 +241,7 @@ class DBMocks{
 			}
 		}
 	}
-	public static function updateStateInfo($table,$id,$state)
+	public static function updateStateInfo($id,$state)
 	{
 		$retbound = self::queryBoundInfo($id);
 		//echo "print retbound ! ".var_dump($retbound);

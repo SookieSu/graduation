@@ -7,6 +7,7 @@
 //define your token
 $dir = dirname(__FILE__);
 require_once($dir.'/../api/mpApi.php');
+require_once($dir.'/../api/findApi.php');
 
 define("TOKEN", "sookiesu");
 $wechatObj = new wechatCallbackapiTest();
@@ -64,12 +65,53 @@ class wechatCallbackapiTest
     public function handleText($postObj)
     {
         $keyword = trim($postObj->Content);
+        $stateArray = DBMocks::queryStateInfo($postObj->FromUserName);
+        if ($stateArray == null)
+        {
+            $state == MsgType::STATE_BASE;
+        }
         if(!empty( $keyword ))
         {
-            $contentStr = "你刚刚说的是："."\n".$postObj->Content."\n"."不过不管你说什么我都不会理你的(￢︿̫̿￢☆)";
-            //for test
-            $resultStr = $this->responseText($postObj,$contentStr);
-            echo $resultStr;
+            switch ($stateArray['state']) {
+                case MsgType::STATE_BASE:
+                    # code...
+                    $contentStr = "普通模式：\n你刚刚说的是："."\n".$postObj->Content."\n"."不过不管你说什么我都不会理你的(￢︿̫̿￢☆)";
+                    //for test
+                    $resultStr = $this->responseText($postObj,$contentStr);
+                    echo $resultStr;
+                    break;
+                case MsgType::STATE_SONG:
+                    # code...
+                    echo "test before session";
+                    session_id($postObj->FromUserName);
+                    session_start();
+                    if (!isset($_SESSION['userID']))
+                    {
+                        $_SESSION['userID'] = $postObj->FromUserName;
+                        $_SESSION['songName'] = $keyword;
+                        $retSongArray = findApi::findSong($keyword);
+                        echo var_dump($retSongArray);
+                        $_SESSION['retSongArray'] = json_encode($retSongArray);
+                        $resultStr = $this->responseMusic($postObj,$retSongArray['name'],$retSongArray['singer'],$retSongArray['link']);
+                        echo $resultStr;
+                    }else{
+                        
+                    }
+                    $contentStr = "你刚刚说的是："."\n".$postObj->Content."\n"."不过不管你说什么我都不会理你的(￢︿̫̿￢☆)";
+                    //for test
+                    break;
+                case MsgType::STATE_STORY:
+                    # code...
+                    $contentStr = "你刚刚说的是："."\n".$postObj->Content."\n"."不过不管你说什么我都不会理你的(￢︿̫̿￢☆)";
+                    //for test
+                    $resultStr = $this->responseText($postObj,$contentStr);
+                    echo $resultStr;
+                    break;
+                default:
+                    # code...
+                    break;
+            }
+            
         }else{
             echo "Input something...";
         }
@@ -90,23 +132,35 @@ class wechatCallbackapiTest
                 {
                     $contentStr = $object->$FromUserName."\n这是一个点击获取消息的事件：click。\n账号未绑定任何设备！\n";
                 }else{
+                    $state = "";
                     switch($object->EventKey)
                     {
                         case MsgType::SONG_OPEN:
                             $contentStr = "SONG_OPEN";
+                            $state = MsgType::STATE_SONG;
                             break;
                         case MsgType::SONG_EXIT:
                             $contentStr = "SONG_EXIT";
+                            $state = MsgType::STATE_BASE;
                             break;
                         case MsgType::STORY_OPEN:
                             $contentStr = "STORY_OPEN";
+                            $state = MsgType::STATE_STORY;
                             break;
                         case MsgType::STORY_EXIT:
                             $contentStr = "STORY_EXIT";
+                            $state = MsgType::STATE_BASE;
                             break;
                         default:
                             $contentStr = "o(^▽^)o";
+                            $state = MsgType::STATE_BASE;
                             break;
+                    }
+                    if (DBMocks::queryStateInfo($object->FromUserName) == null)
+                    {
+                        DBMocks::addStateInfo($object->FromUserName,$state);
+                    }else{
+                        DBMocks::updateStateInfo($object->FromUserName,$state);
                     }
                 }
                 break;
@@ -138,6 +192,12 @@ class wechatCallbackapiTest
     public function responseText($object, $content, $flag=0)
     {
         $resultStr = sprintf(MsgType::textTpl, $object->FromUserName, $object->ToUserName, time(), $content, $flag);
+        return $resultStr;
+    }
+    public function responseMusic($object, $songName,$songDescription,$songUrl, $flag=0)
+    {
+        $HQurl = "";
+        $resultStr = sprintf(MsgType::musicTpl, $object->FromUserName, $object->ToUserName, time(), $songName,$songDescription,$songUrl,$HQurl, $flag);
         return $resultStr;
     }
 
