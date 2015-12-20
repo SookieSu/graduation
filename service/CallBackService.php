@@ -39,7 +39,7 @@ class wechatCallbackapiTest
                 $postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
                 $RX_TYPE = trim($postObj->MsgType);
                 //echo json_encode($postObj);
-                echo var_dump($postObj);
+                //echo var_dump($postObj);
                 switch($RX_TYPE)
                 {
                     case "text":
@@ -75,43 +75,68 @@ class wechatCallbackapiTest
             switch ($stateArray['state']) {
                 case MsgType::STATE_BASE:
                     # code...
+                    session_id($postObj->FromUserName);
+                    session_start();
+                    var_dump($_SESSION);
+                    if (isset($_SESSION['userID']))
+                    {
+                        unset($_SESSION['userID']);
+                        session_unset();
+                        session_destroy();
+                    }
+                    
                     $contentStr = "普通模式：\n你刚刚说的是："."\n".$postObj->Content."\n"."不过不管你说什么我都不会理你的(￢︿̫̿￢☆)";
                     //for test
                     $resultStr = $this->responseText($postObj,$contentStr);
-                    echo $resultStr;
+                    //echo $resultStr;
                     break;
                 case MsgType::STATE_SONG:
                     # code...
-                    echo "test before session";
+                    //echo "test before session";
                     session_id($postObj->FromUserName);
+                    //$lifetime=60;//保存1分钟
+                    //session_set_cookie_params($lifetime);
                     session_start();
-                    if (!isset($_SESSION['userID']))
+                    var_dump($_SESSION);
+                    if (!isset($_SESSION['userID']) || $keyword != "添加" )
                     {
-                        $_SESSION['userID'] = $postObj->FromUserName;
-                        $_SESSION['songName'] = $keyword;
+                        $_SESSION['userID'] = (string)$postObj->FromUserName;
+                        $_SESSION['songName'] = (string)$keyword;
                         $retSongArray = findApi::findSong($keyword);
-                        echo var_dump($retSongArray);
-                        $_SESSION['retSongArray'] = json_encode($retSongArray);
-                        $resultStr = $this->responseMusic($postObj,$retSongArray['name'],$retSongArray['singer'],$retSongArray['link']);
-                        echo $resultStr;
-                    }else{
-                        
+                        //echo var_dump($retSongArray);
+                        $_SESSION['retSongArray'] = (string)json_encode($retSongArray);
+                        $resultStr = $this->responseMusic($postObj,$retSongArray['name'],$retSongArray['singer'],$retSongArray['playUrl']);
+                        echo $_SESSION['userID'].$_SESSION['songName'];
                     }
-                    $contentStr = "你刚刚说的是："."\n".$postObj->Content."\n"."不过不管你说什么我都不会理你的(￢︿̫̿￢☆)";
-                    //for test
+                    else
+                    {
+                        $songName = $_SESSION['songName'];
+                        echo $songName;
+                        $retSongArray = json_decode($_SESSION['retSongArray'],true);
+                        if (DBMocks::addMediaInfo(MsgType::MEDIADATA,$postObj->FromUserName,MsgType::SONG,$retSongArray['link']) == false)
+                        {
+                            $contentStr = "添加失败噢亲~o(^▽^)o~";
+                        }else{
+                            $contentStr = "已加入肯德基豪华午餐~\n哔哔，你要的歌已经加入数据库了~";
+                        }
+                        $resultStr = $this->responseText($postObj,$contentStr);
+                    }
                     break;
                 case MsgType::STATE_STORY:
                     # code...
                     $contentStr = "你刚刚说的是："."\n".$postObj->Content."\n"."不过不管你说什么我都不会理你的(￢︿̫̿￢☆)";
                     //for test
                     $resultStr = $this->responseText($postObj,$contentStr);
-                    echo $resultStr;
+                    //echo $resultStr;
                     break;
                 default:
                     # code...
+                    $contentStr = "你刚刚说的是："."\n".$postObj->Content."\n"."不过不管你说什么我都不会理你的(￢︿̫̿￢☆)";
+                    //for test
+                    $resultStr = $this->responseText($postObj,$contentStr);
                     break;
             }
-            
+            return $resultStr;
         }else{
             echo "Input something...";
         }
@@ -136,7 +161,7 @@ class wechatCallbackapiTest
                     switch($object->EventKey)
                     {
                         case MsgType::SONG_OPEN:
-                            $contentStr = "SONG_OPEN";
+                            $contentStr = "SONG_OPEN\n请输入关键词搜索歌曲，如果需要添加进设备请输入“添加”，退出找歌模式请点击儿歌-》退出";
                             $state = MsgType::STATE_SONG;
                             break;
                         case MsgType::SONG_EXIT:
@@ -166,7 +191,7 @@ class wechatCallbackapiTest
                 break;
             case MsgType::VIEW:
                 $contentStr = "这是一个点击跳转页面的事件：view。\n";
-                echo $object->FromUserName;
+                //echo $object->FromUserName;
                 $boundInfo = mpApi::queryBound($object->FromUserName);
                 if ($boundInfo == null)
                 {
@@ -194,10 +219,10 @@ class wechatCallbackapiTest
         $resultStr = sprintf(MsgType::textTpl, $object->FromUserName, $object->ToUserName, time(), $content, $flag);
         return $resultStr;
     }
-    public function responseMusic($object, $songName,$songDescription,$songUrl, $flag=0)
+    public function responseMusic($object, $songName,$songDescription,$songUrl)
     {
         $HQurl = "";
-        $resultStr = sprintf(MsgType::musicTpl, $object->FromUserName, $object->ToUserName, time(), $songName,$songDescription,$songUrl,$HQurl, $flag);
+        $resultStr = sprintf(MsgType::musicTpl, $object->FromUserName, $object->ToUserName, time(), $songName,$songDescription,$songUrl,$HQurl);
         return $resultStr;
     }
 

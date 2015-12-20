@@ -39,7 +39,7 @@ class deviceApi{
         }
         break;
       default:
-        echo "Unknown method ! \n";
+        //echo "Unknown method ! \n";
         break;
     }
 	}
@@ -53,7 +53,7 @@ class deviceApi{
 	*/
 	public static function getData($deviceID)
 	{
-  		echo "getData!";
+  		//echo "getData!";
       //获取devicedata中的未读信息
   		$_result = DBMocks::queryMessageInfo(Msgtype::DEVICEDATA,$deviceID);//test
       /*//暂时不需要这一段0-0，从数据库中把设备的未读信息都取出来，直接返回就好了。
@@ -91,21 +91,23 @@ class deviceApi{
   			}	
   		}
       */
+      /*
   		foreach ($_result as $value) {
         echo 'msgtype:'.$value['msgtype'];
   			echo 'data:'.$value['data'];
   		}
+      */
   		if($_result){
   			$_out['message'] = Msgtype::SUCCESS;
   			$_out['code'] = Msgtype::SUCCESSCODE;
   			$_out['data'] = $_result;
-  			echo json_encode($_out);
+  			//echo json_encode($_out);
   		}
   		else{
   			$_out['message'] = MsgType::FAILED;
   			$_out['code'] = 0;
   			$_out['data'] = null;
-  			echo json_encode($_out);
+  			//echo json_encode($_out);
   		}
   		return $_result;
   	}
@@ -119,11 +121,11 @@ class deviceApi{
 	{
     sae_xhprof_start();//debug start
 
-		echo "getLatestVoice!";
+		//echo "getLatestVoice!";
     $retData = DBMocks::queryMessageInfo(MsgType::DEVICEDATA,$deviceID,false);
     if($retData != null)
     {
-      echo 'not null retData !';
+      //echo 'not null retData !';
 
       foreach($retData as $record) 
       {

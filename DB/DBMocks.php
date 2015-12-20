@@ -86,7 +86,7 @@ class DBMocks{
 		}
 		//此时拿到了含有id的多维数组data
 		$_bound = $data;
-		echo json_encode($_bound);
+		//echo json_encode($_bound);
 		return $_bound;
 	}
 
@@ -139,7 +139,7 @@ class DBMocks{
 			else 
 			{
 				//echo json_encode($data);
-				echo var_dump($data);
+				//echo var_dump($data);
 				return $data;
 			}
 		}
@@ -178,7 +178,7 @@ class DBMocks{
 			}
 			else
 			{
-				echo "success addMessageInfo  : ".$table. ":" . $userID . ":" . $deviceID . " ! \n";
+				//echo "success addMessageInfo  : ".$table. ":" . $userID . ":" . $deviceID . " ! \n";
 				return true;
 			}
 		}
@@ -207,7 +207,7 @@ class DBMocks{
 			}
 			else
 			{
-				echo "success addStateInfo  : ". $userID . ":" . $deviceID . " ! \n";
+				//echo "success addStateInfo  : ". $userID . ":" . $deviceID . " ! \n";
 				return true;
 			}
 		}
@@ -236,7 +236,7 @@ class DBMocks{
 			else 
 			{
 				//echo json_encode($data);
-				echo var_dump($data);
+				//echo var_dump($data);
 				return $data;
 			}
 		}
@@ -263,7 +263,7 @@ class DBMocks{
 			}
 			else
 			{
-				echo "success update StateInfo ! \n";
+				//echo "success update StateInfo ! \n";
 				return true;
 			}
 		}
@@ -292,7 +292,7 @@ class DBMocks{
 			}
 			else
 			{
-				echo "success deleteStateInfo  : ".$id ." ! \n";
+				//echo "success deleteStateInfo  : ".$id ." ! \n";
 				return true;
 			}
 		}
@@ -325,7 +325,7 @@ class DBMocks{
 			}
 			else
 			{
-				echo "success addMediaInfo  : ".$table. ":" . $userID . ":" . $deviceID . " ! \n";
+				//echo "success addMediaInfo  : ".$table. ":" . $userID . ":" . $deviceID . " ! \n";
 				return true;
 			}
 		}
@@ -361,7 +361,7 @@ class DBMocks{
 			else 
 			{
 				//echo json_encode($data);
-				echo var_dump($data);
+				//echo var_dump($data);
 				return $data;
 			}
 		}
@@ -383,7 +383,7 @@ class DBMocks{
 		}
 		else
 		{
-			echo "success set MessageReadInfo  : ".$table. ":" .$recordID ." ! \n";
+			//echo "success set MessageReadInfo  : ".$table. ":" .$recordID ." ! \n";
 			return true;
 		}
 	}
@@ -405,7 +405,7 @@ class DBMocks{
 		}
 		else
 		{
-			echo "success delete MessageInfo  : ".$table. ":" .$recordID ." ! \n";
+			//echo "success delete MessageInfo  : ".$table. ":" .$recordID ." ! \n";
 			return true;
 		}
 	}
@@ -419,7 +419,7 @@ class DBMocks{
 		}
 		else
 		{
-			echo "success bound  : " . $userID . " : " . $deviceID . " ! \n";
+			//echo "success bound  : " . $userID . " : " . $deviceID . " ! \n";
 			return true;
 		}
 	}
@@ -433,7 +433,7 @@ class DBMocks{
 		}
 		else
 		{
-			echo "success delete bound info  : " . $userID . " : " . $deviceID . " ! \n";
+			//echo "success delete bound info  : " . $userID . " : " . $deviceID . " ! \n";
 			return true;
 		}
 	}
@@ -449,7 +449,7 @@ class DBMocks{
 		}
 		else
 		{
-			echo "success update access_token  : " . $access_token ." ! \n";
+			//echo "success update access_token  : " . $access_token ." ! \n";
 			return true;
 		}
 	}
@@ -485,7 +485,7 @@ class DBMocks{
 		}
 		else
 		{
-			echo "success update SNS access_token ! \n";
+			//echo "success update SNS access_token ! \n";
 			return true;
 		}
 	}

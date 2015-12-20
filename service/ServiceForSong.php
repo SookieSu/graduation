@@ -61,7 +61,7 @@ class ServiceForSong
 	}
 	public static function addSong($userID,$songName,$songUrl)
 	{
-		echo "print in addSong ! \n";
+		//echo "print in addSong ! \n";
 		$myfilename = "song-".$songName."-".time().".mp3";
 		$retData = array('songName' => $songName, 'songUrl' => $songUrl );
 		$data = json_encode($retData);
@@ -75,12 +75,12 @@ class ServiceForSong
 	public static function querySong($userID)
 	{
 		$retData = DBMocks::queryMediaInfo(MsgType::MEDIADATA,$userID,MsgType::SONG);
-		echo var_dump($retData);
+		//echo var_dump($retData);
 		return json_encode($retData);
 	}
 	public static function deleteSong($userID,$songID)
 	{
-		echo "print in deleteSong ! \n";
+		//echo "print in deleteSong ! \n";
 		if (DBMocks::queryMediaInfo(MsgType::MEDIADATA,$userID,MsgType::SONG,$songID) != false)
 		{
 			DBMocks::deleteMessageInfo(MsgType::MEDIADATA,$songID);

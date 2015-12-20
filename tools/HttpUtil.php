@@ -60,7 +60,7 @@ class HttpUtil
 		$realUrl = str_replace("ACCESS_TOKEN",AccessTokenUtil::getTokenStr(),$url);
 		//echo "realurl: ".$realUrl."\n";
 		$rs = self::executePost($realUrl, $body);
-		echo "rs : ".$rs."\n";
+		//echo "rs : ".$rs."\n";
 		$json = json_decode($rs,true);
 		// 访问凭证失效时，重新进行一次s获取凭证并发起原来业务调用
 		if ($json != null && array_key_exists("errcode",$json) 

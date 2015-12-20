@@ -62,7 +62,7 @@ class mpApi
   				self::menuCreate();
   				break;
   			default :
-  				echo "unknown method !\n";
+  				//echo "unknown method !\n";
   				break;
   		}	
 	}

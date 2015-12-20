@@ -27,7 +27,7 @@ class findApi{
   				}
   				break;
   			default :
-  				echo "unknown method !\n";
+  				//echo "unknown method !\n";
   				break;
   		}	
 	}
@@ -35,9 +35,13 @@ class findApi{
 	public static function findSong($songName)
 	{
 		echo "print in findSong\n";
+		$detailUrl = self::getDetailUrl($songName);
 		$retSongArray = BaiduMusic::getSong($songName);
 		//此处返回数组第一个元素
-		return $retSongArray[0];
+		$retSong = $retSongArray[0];
+		$retSong['playUrl'] = $detailUrl;
+		var_dump($retSong);
+		return $retSong;
 	}
 
 	private static function getDetailUrl($songName)

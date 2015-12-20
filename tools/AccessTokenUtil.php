@@ -54,7 +54,7 @@ class AccessTokenUtil{
 
 	// 刷新凭证并更新全局凭证值
 	private static function refreshToken() {
-		echo "refresh token...";
+		//echo "refresh token...";
 		$accessToken = MpApi::getAccessToken();
 		//echo var_dump($accessToken);
 		self::saveAccessToken($accessToken);
@@ -122,5 +122,3 @@ class AccessTokenUtil{
 	}
 }
 ?>
-
-

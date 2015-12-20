@@ -9,7 +9,7 @@ class ServiceForStory
 		$storyName = $_POST['story_name'];
 		$storyUrl = $_POST['story_url'];
 		$storyID = $_POST['story_id'];
-    	echo "ServiceForStory Started ! \n";
+    	//echo "ServiceForStory Started ! \n";
 	}
 }
 ?>
