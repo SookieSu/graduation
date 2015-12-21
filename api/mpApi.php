@@ -161,11 +161,11 @@ class mpApi
 		//echo $realurl;
 		$myfilename = "voice-".time().".amr";
 		$retData = HttpUtil::doGet($realurl);
-		echo "print in addVoice ! \n";
+		//echo "print in addVoice ! \n";
 		$bucketName = MsgType::VOICEFROMWECHAT;
 		//Storage::putBucket($bucketName);
 		$bucketInfo = Storage::getBucketInfo($bucketName);
-		echo var_dump($bucketInfo);
+		//echo var_dump($bucketInfo);
 		$s = new SaeStorage();  
 		
 		//Storage::putObject(Storage::inputFile($retData),$bucketName,$url);
@@ -178,8 +178,10 @@ class mpApi
 			$s->write ( $bucketName ,  $myfilename , $retData );
 			//获取存入storage后的url
 			$retUrl = $s->getUrl($bucketName,$myfilename);
-			echo $retUrl;
+			//echo $retUrl;
 			return DBMocks::addMessageInfo(MsgType::DEVICEDATA,$userID,MsgType::VOICE,$retUrl);
+		}else{
+			return false;
 		}
 		//return $retData;
 	}

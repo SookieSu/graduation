@@ -34,9 +34,13 @@ class deviceApi{
       case 'getData':
         if($deviceID != null)
         {  
-          self::getData($deviceID);
+          $resultStr = self::getData($deviceID);
+          echo $resultStr;
           //self::deleteIsReadMessage($deviceID);
         }
+        break;
+      case 'postData':
+        echo "postData from device\n";
         break;
       default:
         //echo "Unknown method ! \n";
@@ -109,7 +113,7 @@ class deviceApi{
   			$_out['data'] = null;
   			//echo json_encode($_out);
   		}
-  		return $_result;
+  		return json_encode($_result);
   	}
 
 	/*

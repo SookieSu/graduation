@@ -91,8 +91,6 @@ class wechatCallbackapiTest
                     //echo $resultStr;
                     break;
                 case MsgType::STATE_SONG:
-                    # code...
-                    //echo "test before session";
                     session_id($postObj->FromUserName);
                     //$lifetime=60;//保存1分钟
                     //session_set_cookie_params($lifetime);
@@ -117,6 +115,12 @@ class wechatCallbackapiTest
                         {
                             $contentStr = "添加失败噢亲~o(^▽^)o~";
                         }else{
+                            $data = array(
+                                "name" => $retSongArray['name'],
+                                "url" => $retSongArray['link']
+                                );
+                            var_dump($data);
+                            DBMocks::addMessageInfo(MsgType::DEVICEDATA,$postObj->FromUserName,MsgType::SONG_ADD,json_encode($data));
                             $contentStr = "已加入肯德基豪华午餐~\n哔哔，你要的歌已经加入数据库了~";
                         }
                         $resultStr = $this->responseText($postObj,$contentStr);
@@ -161,11 +165,11 @@ class wechatCallbackapiTest
                     switch($object->EventKey)
                     {
                         case MsgType::SONG_OPEN:
-                            $contentStr = "SONG_OPEN\n请输入关键词搜索歌曲，如果需要添加进设备请输入“添加”，退出找歌模式请点击儿歌-》退出";
+                            $contentStr = "SONG_OPEN\n1、请输入关键词搜索歌曲\n2、如果需要添加进设备请输入“添加”\n3、查询噗噗噗小快车现有资源请输入“查询”\n4、退出儿歌模式请点击儿歌->退出儿歌模式";
                             $state = MsgType::STATE_SONG;
                             break;
                         case MsgType::SONG_EXIT:
-                            $contentStr = "SONG_EXIT";
+                            $contentStr = "SONG_EXIT\n已退出儿歌模式(￣▽￣)";
                             $state = MsgType::STATE_BASE;
                             break;
                         case MsgType::STORY_OPEN:
@@ -177,7 +181,7 @@ class wechatCallbackapiTest
                             $state = MsgType::STATE_BASE;
                             break;
                         default:
-                            $contentStr = "o(^▽^)o";
+                            $contentStr = "此功能尚未开通么么哒\no(^▽^)o";
                             $state = MsgType::STATE_BASE;
                             break;
                     }
@@ -208,8 +212,13 @@ class wechatCallbackapiTest
     public function handleVoice($object)
     {
         //$resultStr = $this->responseVoice($object, $VoiceId);
-        $retVoiceData = mpApi::addVoice($object->FromUserName,$object->MediaId);
-        $contentStr = $object->ToUserName.":".$object->FromUserName.":".$object->CreateTime.":".$object->MediaId.":".$object->MsgId;
+        $retFlag = mpApi::addVoice($object->FromUserName,$object->MediaId);
+        if($retFlag == true)
+        {
+            $contentStr = "你刚刚发的语音已经成功推送给噗噗噗小快车啦~(●ˇ∀ˇ●)";
+        }else{
+            $contentStr = "你刚刚发的语音推送失败噢亲~(T_T)";
+        }
         $resultStr = $this->responseText($object,$contentStr);
         return $resultStr;
     }
