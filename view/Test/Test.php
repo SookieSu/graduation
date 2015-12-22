@@ -4,13 +4,10 @@ $dir = dirname(__FILE__);
 require_once($dir.'/../tools/AccessToken.php');
 require_once($dir.'/../api/mpApi.php');
 require_once($dir.'/../DB/DBMocks.php');
-
+require_once($dir.'/../tools/HttpUtil.php');
 
 $method = $_GET['method'];
 $id = $_GET['userID'];
-<<<<<<< HEAD
-DBMocks::Test($method,$id);
-=======
 //DBMocks::Test($method,$id);
 //Test::testforpost();
 echo AccessTokenUtil::getTokenStr();
@@ -31,6 +28,5 @@ class Test{
 
 	
 }
->>>>>>> 7407106434291e8918529c593a782d5b0351ab9e
 
 ?>
