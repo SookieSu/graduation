@@ -185,6 +185,7 @@ class mpApi
 			return false;
 		}
 <<<<<<< HEAD
+<<<<<<< HEAD
 		//return $retData;
 =======
 	}
@@ -225,6 +226,9 @@ class mpApi
 		$retArray = json_decode($jsondata,true);
 		return $retArray['media_id'];
 >>>>>>> 7407106434291e8918529c593a782d5b0351ab9e
+=======
+		//return $retData;
+>>>>>>> parent of 0e2fc6c... getVoice from device complete
 	}
 
 	/**

@@ -167,6 +167,7 @@ class wechatCallbackapiTest
                     switch($object->EventKey)
                     {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
                         case MsgType::GET_VOICE:
                             $state = MsgType::STATE_BASE;
@@ -180,6 +181,8 @@ class wechatCallbackapiTest
                             }
                             break;
 >>>>>>> 7407106434291e8918529c593a782d5b0351ab9e
+=======
+>>>>>>> parent of 0e2fc6c... getVoice from device complete
                         case MsgType::SONG_OPEN:
                             $contentStr = "SONG_OPEN\n1、请输入关键词搜索歌曲\n2、如果需要添加进设备请输入“添加”\n3、查询噗噗噗小快车现有资源请输入“查询”\n4、退出儿歌模式请点击儿歌->退出儿歌模式";
                             $resultStr = $this->responseText($object, $contentStr);
