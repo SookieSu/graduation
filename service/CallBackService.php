@@ -164,11 +164,6 @@ class wechatCallbackapiTest
                     $state = "";
                     switch($object->EventKey)
                     {
-                        case MsgType::GET_VOICE:
-                            $state = MsgType::STATE_BASE;
-                            $retMessage = mpApi::queryVoice($object->FromUserName);
-                            $contentStr = json_encode($retMessage);
-                            break;
                         case MsgType::SONG_OPEN:
                             $contentStr = "SONG_OPEN\n1、请输入关键词搜索歌曲\n2、如果需要添加进设备请输入“添加”\n3、查询噗噗噗小快车现有资源请输入“查询”\n4、退出儿歌模式请点击儿歌->退出儿歌模式";
                             $state = MsgType::STATE_SONG;

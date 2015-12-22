@@ -7,12 +7,11 @@
  * 用于设备获取服务器更新api，处理设备get/post请求
 */
 $dir = dirname(__FILE__);
-require_once($dir.'/../consts/WxConfig.php');
 require_once($dir.'/../consts/MsgType.php');
 require_once($dir.'/../DB/DBMocks.php');
-use sinacloud\sae\Storage as Storage;
-Storage::setAuth(WxConfig::AccessKey, WxConfig::SecretKey);
+
 //echo "hello world!";
+
 deviceApi::start();
 
 class deviceApi{
@@ -29,7 +28,7 @@ class deviceApi{
 	{
 		$deviceID = $_GET['deviceID'];
 		$method = $_GET['method'];
-    $method = $_POST['method'];
+    
     switch ($method)
     {
       case 'getData':
@@ -42,12 +41,6 @@ class deviceApi{
         break;
       case 'postData':
         echo "postData from device\n";
-        $deviceID = $_POST['deviceID'];
-        $data = $_POST['data'];
-        var_dump($deviceID);
-        var_dump($data);
-        $resultStr = self::postData($deviceID,$data);
-        echo $resultStr;
         break;
       default:
         //echo "Unknown method ! \n";
@@ -121,42 +114,8 @@ class deviceApi{
   			//echo json_encode($_out);
   		}
   		return json_encode($_result);
-  }
+  	}
 
-
-  public static function postData($deviceID,$data)
-  {
-    $myfilename = "voice-".time().".amr";
-    $bucketName = MsgType::VOICEFROMDEVICE;
-    $bucketInfo = Storage::getBucketInfo($bucketName);
-    $s = new SaeStorage();
-    //test addVoice
-    if($data != null)
-    {
-      //把retData写入bucket中，文件取名为myfilename
-      $s->write ( $bucketName ,  $myfilename , $data );
-      //获取存入storage后的url
-      $retUrl = $s->getUrl($bucketName,$myfilename);
-      //echo $retUrl;
-    } 
-    $retbound = DBMocks::queryBoundInfo($deviceID);
-    //echo "print retbound ! ".var_dump($retbound);
-    if($retbound == null)
-    {
-      return false;
-    }
-    foreach ($retbound as $record)
-    {
-      $userID = $record['userID'];
-      $deviceID = $record['deviceID'];
-      $retFlag = DBMocks::addMessageInfo(MsgType::WEIXINDATA,$userID,MsgType::VOICE,$retUrl);
-      if ($retFlag != true)
-      {
-        return false;
-      }
-    }
-    return true;
-  }
 	/*
 	 * @funcName : getLatestVoice
 	 * @funcDescription : 通过设备ID获取对应微信ID，查询数据库是否有更新的语音消息，返回语音消息
