@@ -35,6 +35,7 @@ class MsgType{
 
 
   //EventKey定义
+  const GET_VOICE = "get_voice";
   const SONG_OPEN = "song_open";
   const SONG_EXIT = "song_exit";
   const STORY_OPEN = "story_open";

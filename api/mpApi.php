@@ -61,6 +61,9 @@ class mpApi
   			case "menuCreate":
   				self::menuCreate();
   				break;
+  			case "queryVoice":
+  				self::queryVoice($userID);
+  				break;
   			default :
   				//echo "unknown method !\n";
   				break;
@@ -158,19 +161,12 @@ class mpApi
 	public static function addVoice($userID,$mediaID)
 	{
 		$realurl = str_replace("MEDIA_ID",$mediaID,self::GetMediaUrl);
-		//echo $realurl;
 		$myfilename = "voice-".time().".amr";
 		$retData = HttpUtil::doGet($realurl);
-		//echo "print in addVoice ! \n";
 		$bucketName = MsgType::VOICEFROMWECHAT;
-		//Storage::putBucket($bucketName);
 		$bucketInfo = Storage::getBucketInfo($bucketName);
-		//echo var_dump($bucketInfo);
 		$s = new SaeStorage();  
-		
-		//Storage::putObject(Storage::inputFile($retData),$bucketName,$url);
-		//Storage::putObjectString($retData, $bucketName,$url, array(),array('Content-Type' => 'audio/amr'));
-		//echo var_dump($retData);
+
 		//test addVoice
 		if($retData != false)
 		{
@@ -183,7 +179,21 @@ class mpApi
 		}else{
 			return false;
 		}
-		//return $retData;
+	}
+
+	public static function queryVoice($userID)
+	{
+		$retData = DBMocks::queryMessageInfo(MsgType::WEIXINDATA,$userID,false);
+		var_dump($retData);
+		//返回第一条未读信息，按一次返回一次，直到没有未读信息
+		if ($retData != null)
+		{
+			$frontMessage = $retData[0];
+			return $frontMessage;
+		}else{
+			return false;
+		}
+		
 	}
 
 	/**
@@ -194,6 +204,13 @@ class mpApi
 		//$subSong = array(array("type" => "view" , "name" => "添加/删除儿歌" , "url" => "SERVICE_FOR_SONG_URL") );
 		$menuPostString = '{
 		 "button":[{
+		 	"name":"语音",
+		 	"sub_button":[{
+		 		"type":"click",
+		 		"name":"获取宝宝语音",
+		 		"key":"get_voice"
+		 	}]
+		 },{
 		 	"name":"儿歌",
 		 	"sub_button":[{
 		 		"type":"click",
@@ -215,12 +232,6 @@ class mpApi
 		 		"type":"click",
 		 		"name":"退出故事模式",
 		 		"key":"story_exit"
-		 	}]},{
-		 	"name":"定位",
-		 	"sub_button":[{
-		 		"type":"click",
-		 		"name":"获取定位",
-		 		"key":"1300"
 		 	}]
 		 }]
 		}';
