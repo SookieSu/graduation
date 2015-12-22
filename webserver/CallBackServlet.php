@@ -12,6 +12,7 @@ require_once($dir.'/../tools/BaiduMusic.php');
 require_once($dir.'/../api/Message.php');
 
 require_once($dir.'/../api/deviceApi.php');
+require_once($dir.'/../api/findApi.php');
 require_once($dir.'/../api/mpApi.php');
 require_once($dir.'/../service/ServiceForSong.php');
 require_once($dir.'/../service/ServiceForStory.php');

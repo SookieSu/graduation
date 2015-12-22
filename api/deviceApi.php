@@ -220,7 +220,5 @@ class deviceApi{
   		echo "getStory!";
   		return 3;
 	}
-
-
 }
 ?>
