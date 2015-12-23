@@ -539,6 +539,9 @@ class DBMocks{
 				# code...
 				self::querySNSAccessToken();
 				break;
+			case 'queryStateInfo':
+				self::queryStateInfo($id);
+				break;
 			default:
 				# code...
 				break;
