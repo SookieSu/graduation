@@ -178,6 +178,7 @@ class mpApi
 			//echo $retUrl;
 			return DBMocks::addMessageInfo(MsgType::DEVICEDATA,$userID,MsgType::VOICE,$retUrl);
 		}else{
+			error_log("addVoice failed!");
 			return false;
 		}
 	}
@@ -200,6 +201,7 @@ class mpApi
 			$mediaID = self::getMediaID($retMedia);
 			return $mediaID;
 		}else{
+			error_log("queryVoice failed!");
 			return false;
 		}
 	}

@@ -126,7 +126,7 @@ class deviceApi{
   			$_out['data'] = null;
   			//echo json_encode($_out);
   		}
-  		return json_encode($_result);
+  		return json_encode($_out);
   }
 
 
@@ -158,6 +158,7 @@ class deviceApi{
       $retFlag = DBMocks::addMessageInfo(MsgType::WEIXINDATA,$userID,MsgType::VOICE,$retUrl);
       if ($retFlag != true)
       {
+        error_log("postData failed!");
         return false;
       }
     }
