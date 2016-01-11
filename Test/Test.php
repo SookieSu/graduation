@@ -7,9 +7,13 @@ require_once($dir.'/../DB/DBMocks.php');
 require_once($dir.'/../tools/HttpUtil.php');
 
 $method = $_GET['method'];
-$id = $_GET['userID'];
-$data = DBMocks::Test($method,$id);
-var_dump($data);
+$id = $_GET['id'];
+
+if ($method != '' && $id != ''){
+	$data = DBMocks::Test($method,$id);
+	var_dump($data);
+}
+
 //Test::testforpost();
 //echo AccessTokenUtil::getTokenStr();
 class Test{
@@ -25,9 +29,6 @@ class Test{
 		$retData = HttpUtil::executePost($url,$postArray);
 		var_dump($retData);
 	}
-	
-
-	
 }
 
 ?>

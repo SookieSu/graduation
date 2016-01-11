@@ -84,47 +84,15 @@ class wechatCallbackapiTest
                         session_unset();
                         session_destroy();
                     }
-                    
                     $contentStr = "普通模式：\n你刚刚说的是："."\n".$postObj->Content."\n"."不过不管你说什么我都不会理你的(￢︿̫̿￢☆)";
                     //for test
                     $resultStr = $this->responseText($postObj,$contentStr);
                     //echo $resultStr;
                     break;
                 case MsgType::STATE_SONG:
-                    session_id($postObj->FromUserName);
                     //$lifetime=60;//保存1分钟
                     //session_set_cookie_params($lifetime);
-                    session_start();
-                    var_dump($_SESSION);
-                    if (!isset($_SESSION['userID']) || $keyword != "添加" )
-                    {
-                        $_SESSION['userID'] = (string)$postObj->FromUserName;
-                        $_SESSION['songName'] = (string)$keyword;
-                        $retSongArray = findApi::findSong($keyword);
-                        //echo var_dump($retSongArray);
-                        $_SESSION['retSongArray'] = (string)json_encode($retSongArray);
-                        $resultStr = $this->responseMusic($postObj,$retSongArray['name'],$retSongArray['singer'],$retSongArray['playUrl']);
-                        echo $_SESSION['userID'].$_SESSION['songName'];
-                    }
-                    else
-                    {
-                        $songName = $_SESSION['songName'];
-                        echo $songName;
-                        $retSongArray = json_decode($_SESSION['retSongArray'],true);
-                        if (DBMocks::addMediaInfo(MsgType::MEDIADATA,$postObj->FromUserName,MsgType::SONG,$retSongArray['link']) == false)
-                        {
-                            $contentStr = "添加失败噢亲~o(^▽^)o~";
-                        }else{
-                            $data = array(
-                                "name" => $retSongArray['name'],
-                                "url" => $retSongArray['link']
-                                );
-                            var_dump($data);
-                            DBMocks::addMessageInfo(MsgType::DEVICEDATA,$postObj->FromUserName,MsgType::SONG_ADD,json_encode($data));
-                            $contentStr = "已加入肯德基豪华午餐~\n哔哔，你要的歌已经加入数据库了~";
-                        }
-                        $resultStr = $this->responseText($postObj,$contentStr);
-                    }
+                    $resultStr = $this->execSongMode($postObj,$keyword);
                     break;
                 case MsgType::STATE_STORY:
                     # code...
@@ -148,7 +116,8 @@ class wechatCallbackapiTest
 
     public function handleEvent($object)
     {
-        $contentStr = "";
+        $contentStr = "lalala";
+        $resultStr = $this->responseText($object, $contentStr);
         switch ($object->Event)
         {
             case MsgType::SUBSCRIBE:
@@ -178,7 +147,7 @@ class wechatCallbackapiTest
                             }
                             break;
                         case MsgType::SONG_OPEN:
-                            $contentStr = "SONG_OPEN\n1、请输入关键词搜索歌曲\n2、如果需要添加进设备请输入“添加”\n3、查询噗噗噗小快车现有资源请输入“查询”\n4、退出儿歌模式请点击儿歌->退出儿歌模式";
+                            $contentStr = "SONG_OPEN\n1、请输入关键词搜索歌曲\n2、如果需要添加进设备请输入“添加”\n3、查询噗噗噗小快车现有资源请输入“查询”\n4、删除小快车资源请输入“删除”\n5、退出儿歌模式请点击儿歌->退出儿歌模式";
                             $resultStr = $this->responseText($object, $contentStr);
                             $state = MsgType::STATE_SONG;
                             break;
@@ -203,6 +172,7 @@ class wechatCallbackapiTest
                             $state = MsgType::STATE_BASE;
                             break;
                     }
+                    //改状态模式
                     if (DBMocks::queryStateInfo($object->FromUserName) == null)
                     {
                         DBMocks::addStateInfo($object->FromUserName,$state);
@@ -260,6 +230,72 @@ class wechatCallbackapiTest
         return $resultStr;
     }
 
+    private function execSongMode($object,$keyword)
+    {
+        $resultStr = '';
+        session_id($object->FromUserName);
+        session_start();
+        var_dump($_SESSION);
+        //删除歌曲
+        if (isset($_SESSION['deleteSong']) && $_SESSION['deleteSong'] == 'true')
+        {
+            $songID = $keyword;
+            $retFlag = mpApi::deleteSong($object->FromUserName,$songID);
+            if ($retFlag == false)
+            {
+                $contentStr = "删除失败噢亲~o(^▽^)o~";
+            }else{
+                $contentStr = "哔哔，已成功删除~";
+            }
+            $resultStr = $this->responseText($object,$contentStr);
+            $_SESSION['deleteSong'] = "false";
+        }
+        else if ($keyword == "查询")
+        {
+            $retJson = DBMocks::queryMediaInfo(MsgType::MEDIADATA,$object->FromUserName,MsgType::SONG);
+            $retSongArray = json_decode($retJson,true);
+            $contentStr = mpApi::getNameString($retSongArray['data']);
+            $resultStr = $this->responseText($object,$contentStr);
+        }
+        else if ($keyword == "删除")
+        {
+            $_SESSION['deleteSong'] = 'true';
+            $contentStr = "请输入要删除的歌曲id o(*￣▽￣*)ブ";
+            $resultStr = $this->responseText($object,$contentStr);
+
+        }
+        else if (!isset($_SESSION['userID']) || $keyword != "添加" )
+        {
+            //找歌，存进session
+            $_SESSION['userID'] = (string)$object->FromUserName;
+            $_SESSION['songName'] = (string)$keyword;
+            $retSongArray = findApi::findSong($keyword);
+            //echo var_dump($retSongArray);
+            $_SESSION['retSongArray'] = (string)json_encode($retSongArray);
+            $resultStr = $this->responseMusic($object,$retSongArray['name'],$retSongArray['singer'],$retSongArray['playUrl']);
+            echo $_SESSION['userID'].$_SESSION['songName'];
+        }
+        else if ($keyword == "添加")
+        {
+            //添加上一次搜索到的歌曲
+            $songName = $_SESSION['songName'];
+            echo $songName;
+            $retSongArray = json_decode($_SESSION['retSongArray'],true);
+            $retFlag = mpApi::addSong($object->FromUserName,$retSongArray['name'],$retSongArray['link']);
+            if ($retFlag == false)
+            {
+                $contentStr = "添加失败噢亲~o(^▽^)o~";
+            }else{
+                $contentStr = "已加入肯德基豪华午餐~\n哔哔，你要的歌已经加入数据库了~";
+            }
+            $resultStr = $this->responseText($object,$contentStr);
+        }
+        else{
+            $contentStr = "好像有点问题哦~";
+            $resultStr = $this->responseText($object,$contentStr);
+        }
+        return $resultStr;
+    }
 
     private function checkSignature()
     {

@@ -144,7 +144,6 @@ class DBMocks{
 			}
 		}
 	}
-
 	/*
 	 * @funcName : addMessageInfo
  	 * @funcDescription : 增加某表格，某用户id的未读信息，返回bool类型,该id可以是用户id或设备id
@@ -183,7 +182,6 @@ class DBMocks{
 			}
 		}
 	}
-
 	public static function addStateInfo($id,$state)
 	{
 		$retbound = self::queryBoundInfo($id);
@@ -212,7 +210,6 @@ class DBMocks{
 			}
 		}
 	}
-
 	public static function queryStateInfo($id)
 	{
 		$retbound = self::queryBoundInfo($id);
@@ -325,8 +322,9 @@ class DBMocks{
 			}
 			else
 			{
+				$lastID = self::$mysql->lastId();
 				//echo "success addMediaInfo  : ".$table. ":" . $userID . ":" . $deviceID . " ! \n";
-				return true;
+				return $lastID;
 			}
 		}
 	}
@@ -360,9 +358,22 @@ class DBMocks{
 			}
 			else 
 			{
+				$_out = '';
 				//echo json_encode($data);
 				//echo var_dump($data);
-				return $data;
+				if($data){
+  					$_out['message'] = Msgtype::SUCCESS;
+  					$_out['code'] = Msgtype::SUCCESSCODE;
+  					$_out['data'] = $data;
+  					//echo json_encode($_out);
+  				}
+  				else{
+  					$_out['message'] = MsgType::FAILED;
+  					$_out['code'] = 0;
+  					$_out['data'] = null;
+  					//echo json_encode($_out);
+  				}
+				return json_encode($_out);
 			}
 		}
 	}
@@ -387,7 +398,6 @@ class DBMocks{
 			return true;
 		}
 	}
-
 	/*
 	 * @funcName : deleteMessageInfo
  	 * @funcDescription : 删除某表格的某record信息，返回bool类型
@@ -437,7 +447,6 @@ class DBMocks{
 			return true;
 		}
 	}
-
 	public static function updateAccessToken($access_token)
 	{
 		$sql = "UPDATE ".MsgType::ACCESSTOKEN." SET access_token = "."'$access_token'"." WHERE id = '1' ";
@@ -468,7 +477,6 @@ class DBMocks{
 			return $data['access_token'];
 		}
 	}
-
 	public static function updateSNSAccessToken($code,$SNSaccess_token)
 	{
 		//$sql = "INSERT  INTO ".MsgType::SNSACCESSTOKEN." ( `code` , `data` ) "." VALUES "." ( '$code' , '$SNSaccess_token') ";
@@ -504,8 +512,7 @@ class DBMocks{
 			return $data;
 		}
 	}
-
-	public static function Test($method = null,$id = null)
+	public static function Test($method = null,$id = null, $userID = null , $deviceID = null)
 	{
 		//$sql = "INSERT  INTO ".MsgType::STATE." ( `code` , `data` ) "." VALUES "." ( 'lalala' , 'llllll') ";
 		//$sql = "DELETE FROM ".MsgType::SNSACCESSTOKEN;
@@ -518,37 +525,54 @@ class DBMocks{
 			echo 'ok';
 			return true;
 		}*/
+		$retdata = '';
 		switch ($method) {
 			case 'queryBoundInfo':
 				# code...
-				self::queryBoundInfo($id);
+				$retdata = self::queryBoundInfo($id);
 				break;
 			case 'queryMessageInfo':
 				# code...
-				self::queryMessageInfo(MsgType::DEVICEDATA,$id);
+				$retdata = self::queryMessageInfo(MsgType::DEVICEDATA,$id);
 				break;
 			case 'queryMediaInfo':
 				# code...
-				self::queryMediaInfo(MsgType::MEDIADATA,$id,MsgType::SONG);
+				$retdata = self::queryMediaInfo(MsgType::MEDIADATA,$id,MsgType::SONG);
 				break;
 			case 'queryAccessToken':
 				# code...
-				self::queryAccessToken();
+				$retdata = self::queryAccessToken();
 				break;
 			case 'querySNSAccessToken':
 				# code...
-				self::querySNSAccessToken();
+				$retdata = self::querySNSAccessToken();
 				break;
 			case 'queryStateInfo':
-				self::queryStateInfo($id);
+				$retdata = self::queryStateInfo($id);
+				break;
+			case 'saveBoundInfo':
+				# code...
+				$retdata = self::saveBoundInfo($userID,$deviceID);
+				break;
+			case 'removeBoundInfo':
+				$retdata = self::removeBoundInfo($userID,$deviceID);
+				break;
+			case 'deleteMessageInfo':
+				# code...
+				$retdata = self::deleteMessageInfo(MsgType::DEVICEDATA,$id);
+				break;
+			case 'deleteMediaInfo':
+				$retdata = self::deleteMessageInfo(MsgType::MEDIADATA,$id);
+				break;
+			case 'deleteStateInfo':
+				# code...
+				$retdata = self::deleteStateInfo($id);
 				break;
 			default:
 				# code...
 				break;
 		}
-		
+		return $retdata;
 	}
 }
-
-
 ?>

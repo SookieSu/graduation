@@ -61,9 +61,9 @@ class MsgType{
   const STORY_ADD = "story_add";
   const STORY_DELETE = "story_delete";
 
-  const SUCCESS = true;
-  const FAILED = false;
-  const SUCCESSCODE = 200;
+  const SUCCESS = "true";
+  const FAILED = "false";
+  const SUCCESSCODE = "200";
   
   //storage domain定义
   const VOICEFROMWECHAT = "voicefromwechat";

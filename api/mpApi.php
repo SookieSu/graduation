@@ -206,6 +206,53 @@ class mpApi
 		}
 	}
 
+	public static function addSong($userID,$songName,$songUrl)
+	{
+		$songInfo = array(
+			'id' => '',
+			'name' => $songName,
+			'url' => $songUrl
+			);
+		$retFlag = DBMocks::addMediaInfo(MsgType::MEDIADATA,$userID,MsgType::SONG,json_encode($songInfo));
+		if ($retFlag == false)
+		{
+			return false;
+		}
+		else{
+			$songInfo['id'] = $retFlag;
+			return DBMocks::addMessageInfo(MsgType::DEVICEDATA,$userID,MsgType::SONG_ADD,json_encode($songInfo));
+		}
+	}
+
+	public static function deleteSong($userID,$songID)
+	{
+		$retFlag = DBMocks::deleteMessageInfo(MsgType::MEDIADATA,$songID);
+		if ($retFlag == false)
+		{
+			return false;
+		}
+		else{
+			return DBMocks::addMessageInfo(MsgType::DEVICEDATA,$userID,MsgType::SONG_DELETE,$songID);
+		}
+	}
+
+	public static function getNameString($dataArray)
+	{
+		$resultStr = "=======================\n";
+		foreach ($dataArray as $record) {
+			# code...
+			$id = $record['id'];
+			$dataJson = $record['data'];
+			$dataArray = json_decode($dataJson,true);
+			$name = $dataArray['name'];
+			$line = "id : " . $id . " name: " . $name . "\n";
+			$resultStr = $resultStr . $line;
+		}
+		$end = "=======================";
+		$resultStr = $resultStr . $end;
+		return $resultStr;
+	}
+
 	public static function getMediaID($data)
 	{
 		$type = MsgType::VOICE;

@@ -30,13 +30,14 @@ class deviceApi{
 		$deviceID = $_GET['deviceID'];
 		$methodGet = $_GET['method'];
     $methodPost = $_POST['method'];
+    //echo var_dump($_POST);
     switch ($methodGet)
     {
       case 'getData':
         if($deviceID != null)
         {  
           $resultStr = self::getData($deviceID);
-          echo $resultStr;
+          echo utf8_encode($resultStr);
           //self::deleteIsReadMessage($deviceID);
         }
         break;
@@ -47,11 +48,11 @@ class deviceApi{
     switch ($methodPost)
     {
       case 'postData':
-        echo "postData from device\n";
+        //echo "postData from device\n";
         $deviceID = $_POST['deviceID'];
         $data = $_POST['data'];
-        var_dump($deviceID);
-        var_dump($data);
+        //var_dump($deviceID);
+        //var_dump($data);
         $resultStr = self::postData($deviceID,$data);
         echo $resultStr;
         break;
@@ -73,6 +74,17 @@ class deviceApi{
   		//echo "getData!";
       //获取devicedata中的未读信息
   		$_result = DBMocks::queryMessageInfo(Msgtype::DEVICEDATA,$deviceID);//test
+      //全设已读
+      /*
+      if($_result != null)
+      {
+        //echo 'not null retData !';
+        foreach($_result as $record) 
+        {
+          DBMocks::setMessageReadInfo(MsgType::DEVICEDATA,$record['id']);
+        }
+      }
+      */
       /*//暂时不需要这一段0-0，从数据库中把设备的未读信息都取出来，直接返回就好了。
   		for($index = 0;$index < count($_result);$index++) {
   			# code...
@@ -143,7 +155,7 @@ class deviceApi{
       $s->write ( $bucketName ,  $myfilename , $data );
       //获取存入storage后的url
       $retUrl = $s->getUrl($bucketName,$myfilename);
-      //echo $retUrl;
+      echo $retUrl;
     } 
     $retbound = DBMocks::queryBoundInfo($deviceID);
     //echo "print retbound ! ".var_dump($retbound);
@@ -171,7 +183,7 @@ class deviceApi{
 	*/
 	protected function getLatestVoice($deviceID)
 	{
-    sae_xhprof_start();//debug start
+    //sae_xhprof_start();//debug start
 
 		//echo "getLatestVoice!";
     $retData = DBMocks::queryMessageInfo(MsgType::DEVICEDATA,$deviceID,false);
@@ -182,7 +194,7 @@ class deviceApi{
       foreach($retData as $record) 
       {
         DBMocks::setMessageReadInfo(MsgType::DEVICEDATA,$record['id']);
-        sae_xhprof_end();//debug end
+        //sae_xhprof_end();//debug end
       }
     }
     else
@@ -208,18 +220,7 @@ class deviceApi{
     {
       return MsgType::UPDATED;
     }
-    return 1;
+    return true;
   }
-	protected function getSong($deviceID)
-	{
-  		echo "getSong!";
-  		return 2;
-	}
-
-	protected function getStory($deviceID)
-	{
-  		echo "getStory!";
-  		return 3;
-	}
 }
 ?>
