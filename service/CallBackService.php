@@ -90,8 +90,6 @@ class wechatCallbackapiTest
                     //echo $resultStr;
                     break;
                 case MsgType::STATE_SONG:
-                    //$lifetime=60;//保存1分钟
-                    //session_set_cookie_params($lifetime);
                     $resultStr = $this->execSongMode($postObj,$keyword);
                     break;
                 case MsgType::STATE_STORY:
@@ -183,12 +181,6 @@ class wechatCallbackapiTest
                 break;
             case MsgType::VIEW:
                 $contentStr = "这是一个点击跳转页面的事件：view。\n";
-                //echo $object->FromUserName;
-                $boundInfo = mpApi::queryBound($object->FromUserName);
-                if ($boundInfo == null)
-                {
-                    $contentStr = "这是一个点击跳转页面的事件：view。\n 账号未绑定任何设备！\n";
-                }
                 $resultStr = $this->responseText($object, $contentStr);
                 break;
             default :
@@ -233,6 +225,8 @@ class wechatCallbackapiTest
     private function execSongMode($object,$keyword)
     {
         $resultStr = '';
+        //$lifetime=60;//保存1分钟
+        //session_set_cookie_params($lifetime);
         session_id($object->FromUserName);
         session_start();
         var_dump($_SESSION);

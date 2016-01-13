@@ -176,6 +176,10 @@ class mpApi
 			//获取存入storage后的url
 			$retUrl = $s->getUrl($bucketName,$myfilename);
 			//echo $retUrl;
+			//////////
+			//此处是演示测试！！！把微信发来的未读语音发回到weixindata里面
+			DBMocks::addMessageInfo(MsgType::WEIXINDATA,$userID,MsgType::VOICE,$retUrl);
+			//////////
 			return DBMocks::addMessageInfo(MsgType::DEVICEDATA,$userID,MsgType::VOICE,$retUrl);
 		}else{
 			error_log("addVoice failed!");
@@ -185,18 +189,21 @@ class mpApi
 
 	public static function queryVoice($userID)
 	{
-		$retData = DBMocks::queryMessageInfo(MsgType::WEIXINDATA,$userID,false);
+		$retData = DBMocks::queryMessageInfo(MsgType::WEIXINDATA,$userID,"false");
 		var_dump($retData);
 		//返回第一条未读信息，按一次返回一次，直到没有未读信息
 		if ($retData != null)
 		{
 			$frontMessage = $retData[0];
+			echo $frontMessage;
 			//设置为已读
 			DBMocks::setMessageReadInfo(MsgType::WEIXINDATA,$frontMessage['id']);
-			//$tmpdataUrl = $frontMessage['data'];
+			$tmpdataUrl = $frontMessage['data'];
+			echo $tmpdataUrl;
 			//for test
-			$tmpdataUrl = "http:\/\/sookiesu-voicefromwechat.stor.sinaapp.com\/voice-1450681665.amr";
+			//$tmpdataUrl = "http:\/\/sookiesu-voicefromwechat.stor.sinaapp.com\/voice-1450681665.amr";
 			$dataUrl = stripslashes($tmpdataUrl);
+			echo $dataUrl;
 			$retMedia = HttpUtil::executeGet($dataUrl);
 			$mediaID = self::getMediaID($retMedia);
 			return $mediaID;
